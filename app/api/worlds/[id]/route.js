@@ -78,7 +78,7 @@ export async function PATCH(req, { params }) {
     dbm.logEvent(params.id, "settings", `Install folder changed to ${info.installDir}`);
   }
 
-  const allowed = ["display_name", "admin_password", "server_password", "autostart", "crash_guard", "rest_api_enabled", "extra_args", "env_vars", "wine_binary", "wine_prefix", "wine_launch_flags", "game_port", "query_port", "rest_api_port", "rcon_port", "community_server", "mods_enabled", "discord_webhook", "notify_events", "discord_relay_chat", "discord_webhooks", "warn_enabled", "warn_lead_minutes", "warn_interval_minutes", "warn_message", "legacy_perf_flags"];
+  const allowed = ["display_name", "admin_password", "server_password", "autostart", "crash_guard", "rest_api_enabled", "extra_args", "env_vars", "wine_binary", "wine_prefix", "wine_launch_flags", "game_port", "query_port", "rest_api_port", "rcon_port", "community_server", "mods_enabled", "discord_webhook", "notify_events", "discord_relay_chat", "discord_webhooks", "notify_templates", "warn_enabled", "warn_lead_minutes", "warn_interval_minutes", "warn_message", "legacy_perf_flags"];
 
   const clean = {};
   for (const k of allowed) if (k in patch) clean[k] = patch[k];
@@ -108,6 +108,10 @@ export async function PATCH(req, { params }) {
   // discord_webhooks (the multi-webhook routing config) is likewise a JSON column.
   if (clean.discord_webhooks && typeof clean.discord_webhooks === "object") {
     clean.discord_webhooks = JSON.stringify(clean.discord_webhooks);
+  }
+  // notify_templates is a JSON column too ({kind: template}); accept an object from the client.
+  if (clean.notify_templates && typeof clean.notify_templates === "object") {
+    clean.notify_templates = JSON.stringify(clean.notify_templates);
   }
   if ("discord_relay_chat" in clean) clean.discord_relay_chat = clean.discord_relay_chat ? 1 : 0;
   if ("warn_enabled" in clean) clean.warn_enabled = clean.warn_enabled ? 1 : 0;

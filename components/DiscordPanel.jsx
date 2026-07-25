@@ -6,19 +6,35 @@ import { normalizeDiscord, ROUTE_KINDS, MAX_HOOKS } from "@/lib/discord-routing"
 
 const newId = () => `h_${Math.random().toString(36).slice(2, 9)}`;
 
+// Event kinds that actually fire notify() (lib/discord-routing EVENT_KINDS/PLAYER_KINDS,
+// minus chat which is relayed separately) and the placeholders each one can use.
+const TEMPLATE_KINDS = [
+  { kind: "join", placeholders: ["world", "player", "time"] },
+  { kind: "leave", placeholders: ["world", "player", "time"] },
+  { kind: "crash", placeholders: ["world", "code", "time"] },
+  { kind: "restart", placeholders: ["world", "time"] },
+  { kind: "update", placeholders: ["world", "build", "time"] },
+  { kind: "backup", placeholders: ["world", "reason", "size", "time"] },
+];
+
 export default function DiscordPanel({ world, onChange }) {
   const { t } = useTranslation();
   const initial = useMemo(
     () => normalizeDiscord(world),
     [world.discord_webhooks, world.discord_webhook, world.notify_events, world.discord_relay_chat]
   );
+  const initialTemplates = useMemo(() => {
+    try { return world.notify_templates ? JSON.parse(world.notify_templates) : {}; } catch { return {}; }
+  }, [world.notify_templates]);
 
   const [hooks, setHooks] = useState(initial.hooks);
   const [routes, setRoutes] = useState(initial.routes);
+  const [templates, setTemplates] = useState(initialTemplates);
   const [saving, setSaving] = useState(false);
   const [testingId, setTestingId] = useState(null);
 
-  const dirty = JSON.stringify({ hooks, routes }) !== JSON.stringify(initial);
+  const dirty = JSON.stringify({ hooks, routes }) !== JSON.stringify(initial)
+    || JSON.stringify(templates) !== JSON.stringify(initialTemplates);
 
   const addHook = () => {
     if (hooks.length >= MAX_HOOKS) return;
@@ -35,7 +51,8 @@ export default function DiscordPanel({ world, onChange }) {
   };
   const setRoute = (kind, hookId) => setRoutes((rs) => ({ ...rs, [kind]: hookId }));
 
-  const discard = () => { setHooks(initial.hooks); setRoutes(initial.routes); };
+  const discard = () => { setHooks(initial.hooks); setRoutes(initial.routes); setTemplates(initialTemplates); };
+  const setTemplate = (kind, value) => setTemplates((tm) => ({ ...tm, [kind]: value }));
 
   const sendTest = async (hook) => {
     setTestingId(hook.id);
@@ -56,9 +73,15 @@ export default function DiscordPanel({ world, onChange }) {
       const validIds = new Set(cleanedHooks.map((h) => h.id));
       const cleanedRoutes = {};
       for (const k of ROUTE_KINDS) cleanedRoutes[k] = validIds.has(routes[k]) ? routes[k] : "";
+      // Drop blank templates so a kind falls back to the built-in default message.
+      const cleanedTemplates = {};
+      for (const { kind } of TEMPLATE_KINDS) {
+        const v = (templates[kind] || "").trim();
+        if (v) cleanedTemplates[kind] = v;
+      }
       await api(`/api/worlds/${world.world_id}`, {
         method: "PATCH",
-        body: { discord_webhooks: { hooks: cleanedHooks, routes: cleanedRoutes } },
+        body: { discord_webhooks: { hooks: cleanedHooks, routes: cleanedRoutes }, notify_templates: cleanedTemplates },
       });
       toast(t("discord.saved"), "success");
       onChange?.();
@@ -150,6 +173,35 @@ export default function DiscordPanel({ world, onChange }) {
               </div>
             );
           })}
+        </div>
+      </section>
+
+      {/* ---- Custom message templates ---- */}
+      <section>
+        <label className="label">{t("discord.templatesTitle")}</label>
+        <p className="subtle" style={{ fontWeight: 600, fontSize: "0.78rem", marginTop: 0, marginBottom: "0.7rem" }}>
+          {t("discord.templatesDesc")}
+        </p>
+        <div style={{ display: "grid", gap: "0.7rem" }}>
+          {TEMPLATE_KINDS.map(({ kind, placeholders }) => (
+            <div key={kind} className="panel-inset" style={{ padding: "0.7rem 0.9rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap", marginBottom: "0.4rem" }}>
+                <span style={{ fontWeight: 800, fontSize: "0.84rem" }}>{t(`discord.kind.${kind}`)}</span>
+                <span style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                  {placeholders.map((p) => (
+                    <code key={p} title={t("discord.insertPlaceholder")} onClick={() => setTemplate(kind, `${templates[kind] || ""}{${p}}`)}
+                      style={{ cursor: "pointer", fontSize: "0.68rem", padding: "1px 5px", borderRadius: 5, background: "var(--card-2)", fontWeight: 700 }}>
+                      {`{${p}}`}
+                    </code>
+                  ))}
+                </span>
+              </div>
+              <textarea
+                className="input" value={templates[kind] || ""} onChange={(e) => setTemplate(kind, e.target.value)}
+                rows={2} spellCheck={false} placeholder={t(`discord.tplDefault.${kind}`)}
+                style={{ width: "100%", resize: "vertical", fontSize: "0.82rem", lineHeight: 1.4, minHeight: 38 }} />
+            </div>
+          ))}
         </div>
       </section>
 

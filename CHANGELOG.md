@@ -3,13 +3,51 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.6.0] — Unreleased
+
+### At a glance
+- On a fresh Windows machine, the app now **detects the missing Visual C++ / DirectX
+  runtimes** the server needs and installs them for you in one click — no more silent
+  "server won't start".
+- The **Players tab shows a login-streak leaderboard**: who plays, when they were last on,
+  and their current and longest daily streaks — built from history the app already keeps.
+- **Discord notifications are now customizable** — write your own message for each event
+  with placeholders like `{player}` and `{world}`.
+- The **ini editor gains Ctrl+F search** (and Ctrl+H replace), plus an open-in-external-editor
+  button.
+- **German** is now a built-in language.
+- Fixed: creating a world on Windows no longer defaults the platform to "Linux".
 
 ### Added
-- **Player activity & login streaks.** The Players tab now shows a roster of everyone who
-  has ever joined a world — ranked by login streak — with their last-seen time, current
-  streak, longest streak, and total logins. It's derived entirely from the join history the
-  app already records, so it needs no setup and works even while the world is stopped.
+- **Detect & install missing Windows runtimes.** On a fresh Windows machine the Palworld
+  server needs the Microsoft Visual C++ and DirectX runtimes; without them it exits the
+  instant it starts. The app now detects when they're missing, shows a warning on the
+  world's Overview with a one-click **Install prerequisites** button (downloads Microsoft's
+  VC++ redistributable and runs Epic's bundled prerequisite installer, elevated), and — if
+  a server dies at launch for this reason — says so specifically instead of "exited
+  unexpectedly".
+
+- **Player login streaks.** The Players tab now shows a roster of everyone who has joined a
+  world, ranked by login streak, with their last-seen time, current streak, longest streak
+  and total logins. It's derived entirely from the join history the app already records, so
+  it needs no setup and works even while the world is stopped.
+
+- **Customizable Discord notification messages.** The Discord tab gains a **Message
+  templates** section: write your own multiline text for join, leave, crash, restart,
+  update and backup events, with click-to-insert placeholders like `{world}`, `{player}`,
+  `{code}` and `{build}`. Leave one blank to keep the built-in default.
+
+- **Search in the ini editor.** The raw `PalWorldSettings.ini` editor now has a Notepad-style
+  **Ctrl+F** find bar (match count, next/prev, match-case) with **Ctrl+H** find-and-replace,
+  plus an **Open in editor** button to edit the file in your system's default editor.
+
+- **German language pack.** German (`de`) is now bundled as a built-in language and is also
+  available from the in-app community language catalog.
+
+### Fixed
+- **Create-world platform default on Windows.** Creating a world on a Windows machine
+  defaulted the target platform to "Linux"; it now correctly detects and defaults to the
+  host platform.
 
 ## [2.5.0] — 2026-07-19
 

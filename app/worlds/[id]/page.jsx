@@ -14,6 +14,7 @@ import MapPanel from "@/components/MapPanel";
 import ModsPanel from "@/components/ModsPanel";
 import Ue4ssPanel from "@/components/Ue4ssPanel";
 import PalSchemaPanel from "@/components/PalSchemaPanel";
+import PrereqsNotice from "@/components/PrereqsNotice";
 import AdminPanel from "@/components/AdminPanel";
 import ChatPanel from "@/components/ChatPanel";
 import BroadcastPanel from "@/components/BroadcastPanel";
@@ -372,6 +373,8 @@ function ConnectRow({ label, value, which, copied, onCopy, accent }) {
 function Overview({ world, live, events, sessions, onDelete }) {
   const { t } = useTranslation();
   return (
+    <>
+    {world.platform === "windows" && <PrereqsNotice worldId={world.world_id} />}
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.4rem" }}>
       <div>
         <h3 className="heading" style={{ fontSize: "1rem", marginTop: 0 }}>{t("world.recentActivity")}</h3>
@@ -405,5 +408,6 @@ function Overview({ world, live, events, sessions, onDelete }) {
         <button className="btn btn-danger" onClick={onDelete}><Icon name="trash" /> {t("world.deleteProfile")}</button>
       </div>
     </div>
+    </>
   );
 }

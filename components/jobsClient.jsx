@@ -12,7 +12,7 @@ const PHASE_LABELS = {
   backup: "Backing up", settings: "Writing settings", finalizing: "Finishing up",
 };
 export function phaseLabel(phase) { return PHASE_LABELS[phase] || "Working"; }
-export function labelFor(job) { return job.worldName || (job.type === "install" ? "New server" : "Server update"); }
+export function labelFor(job) { return job.worldName || (job.type === "install" ? "New server" : job.type === "redist" ? "Prerequisites" : "Server update"); }
 
 // Poll /api/jobs, fast while something runs, relaxed when idle. Exposes
 // window.__palJobsPing() so a page can force an immediate refresh after starting.
@@ -62,8 +62,8 @@ export function JobCard({ job, onDismiss }) {
 
   const color = job.status === "error" ? "var(--red)" : job.status === "success" ? "var(--green-bright)" : "var(--accent)";
   const running = job.status === "running";
-  const typeLabel = t(job.type === "install" ? "job.install" : "job.update");
-  const cardLabel = job.worldName || t(job.type === "install" ? "job.newServer" : "job.serverUpdate");
+  const typeLabel = t(job.type === "install" ? "job.install" : job.type === "redist" ? "job.prereqs" : "job.update");
+  const cardLabel = job.worldName || t(job.type === "install" ? "job.newServer" : job.type === "redist" ? "job.prereqs" : "job.serverUpdate");
 
   return (
     <div className="panel-inset" style={{ padding: "0.9rem 1rem", borderLeft: `3px solid ${color}` }}>

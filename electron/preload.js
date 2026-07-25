@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("desktop", {
   isElectron: true,
+  platform: process.platform,   // "win32" | "linux" | "darwin" — drives the create-world default
   pickDirectory: () => ipcRenderer.invoke("pick-directory"),
   pickZip: () => ipcRenderer.invoke("pick-zip"),
   getSystemTheme: () => ipcRenderer.invoke("get-theme"),
