@@ -3,6 +3,14 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Player activity & login streaks.** The Players tab now shows a roster of everyone who
+  has ever joined a world — ranked by login streak — with their last-seen time, current
+  streak, longest streak, and total logins. It's derived entirely from the join history the
+  app already records, so it needs no setup and works even while the world is stopped.
+
 ## [2.5.0] — 2026-07-19
 
 ### At a glance
