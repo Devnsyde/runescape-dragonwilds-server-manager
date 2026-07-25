@@ -11,6 +11,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   "server won't start".
 - The **Players tab shows a login-streak leaderboard**: who plays, when they were last on,
   and their current and longest daily streaks — built from history the app already keeps.
+- New **Deaths tab and death notifications**: see who died, how, and which Pal (e.g. Depresso)
+  or player killed them — in the Overview log and as its own customizable Discord message.
 - **Discord notifications are now customizable** — write your own message for each event
   with placeholders like `{player}` and `{world}`.
 - The **ini editor gains Ctrl+F search** (and Ctrl+H replace), plus an open-in-external-editor
@@ -36,6 +38,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   templates** section: write your own multiline text for join, leave, crash, restart,
   update and backup events, with click-to-insert placeholders like `{world}`, `{player}`,
   `{code}` and `{build}`. Leave one blank to keep the built-in default.
+
+- **Player death tracking.** A new **Deaths** tab installs a bundled UE4SS mod
+  (`PSMDeathRelay`) that reads player deaths straight from the running server. Each death is
+  recorded with its cause (Attack, Falling, Drown, Burn, …) and, for combat deaths, the
+  killer — a friendly Pal name (internal `NegativeKoala` → **Depresso**) or the other player
+  for PvP. Deaths show live in the tab (with a "most deaths" leaderboard), land in the
+  Overview log, and route to Discord as a new **death** action with three separately
+  customizable templates — killed by a Pal, killed by a player, and environmental — with
+  `{player}`, `{pal}`, `{killer}` and `{cause}` placeholders and the names in **bold**.
 
 - **Search in the ini editor.** The raw `PalWorldSettings.ini` editor now has a Notepad-style
   **Ctrl+F** find bar (match count, next/prev, match-case) with **Ctrl+H** find-and-replace,

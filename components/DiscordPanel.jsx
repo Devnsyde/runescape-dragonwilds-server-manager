@@ -15,6 +15,12 @@ const TEMPLATE_KINDS = [
   { kind: "restart", placeholders: ["world", "time"] },
   { kind: "update", placeholders: ["world", "build", "time"] },
   { kind: "backup", placeholders: ["world", "reason", "size", "time"] },
+  // Player-death variants (fed by the PSMDeathRelay mod). All route through the single
+  // "death" channel; each variant is its own template so a Pal kill, a PvP kill, and an
+  // environmental death (fall/drown/…) can read differently.
+  { kind: "death_pal", placeholders: ["world", "player", "pal", "cause", "time"] },
+  { kind: "death_player", placeholders: ["world", "player", "killer", "cause", "time"] },
+  { kind: "death_env", placeholders: ["world", "player", "cause", "time"] },
 ];
 
 export default function DiscordPanel({ world, onChange }) {

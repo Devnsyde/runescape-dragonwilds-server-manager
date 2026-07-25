@@ -17,6 +17,7 @@ import PalSchemaPanel from "@/components/PalSchemaPanel";
 import PrereqsNotice from "@/components/PrereqsNotice";
 import AdminPanel from "@/components/AdminPanel";
 import ChatPanel from "@/components/ChatPanel";
+import DeathsPanel from "@/components/DeathsPanel";
 import BroadcastPanel from "@/components/BroadcastPanel";
 import DiscordPanel from "@/components/DiscordPanel";
 import DiscordBotPanel from "@/components/DiscordBotPanel";
@@ -24,6 +25,7 @@ import DiscordBotPanel from "@/components/DiscordBotPanel";
 const TABS = [
   { id: "overview", labelKey: "world.tab.overview", icon: "grid" },
   { id: "players", labelKey: "world.tab.players", icon: "users" },
+  { id: "deaths", labelKey: "world.tab.deaths", icon: "activity" },
   { id: "map", labelKey: "world.tab.map", icon: "map" },
   { id: "broadcast", labelKey: "world.tab.broadcast", icon: "bell" },
   { id: "chat", labelKey: "world.tab.chat", icon: "chat" },
@@ -171,6 +173,7 @@ export default function WorldDetail() {
       <div className="panel" style={{ padding: "1.3rem" }}>
         {tab === "overview" && <Overview world={world} live={live} events={events} sessions={sessions} onDelete={() => setDeleting(true)} />}
         {tab === "players" && <PlayersPanel worldId={id} players={live?.players} onChange={load} />}
+        {tab === "deaths" && <DeathsPanel worldId={id} running={running} onGoToUe4ss={() => setTab("mods")} onGoToDiscord={() => setTab("discord")} />}
         {tab === "map" && <MapPanel players={live?.players} running={running} />}
         {tab === "broadcast" && <BroadcastPanel worldId={id} running={running} onGoToUe4ss={() => setTab("mods")} />}
         {tab === "chat" && <ChatPanel worldId={id} running={running} onGoToUe4ss={() => setTab("mods")} />}
