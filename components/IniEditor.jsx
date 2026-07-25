@@ -1,7 +1,9 @@
 "use client";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { api, Icon, fmtTime, fmtBytes, StatusChip, toast } from "@/components/ui";
+
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // Full-screen modal editor for PalWorldSettings.ini with version history.
 // Every save/restore snapshots the file, so any change can be rolled back.
@@ -19,8 +21,87 @@ export default function IniEditor({ world, running, onClose }) {
   const [preview, setPreview] = useState(null);   // { id, content } being viewed
   const [confirm, setConfirm] = useState(null);    // { message, onYes }
   const downOnBackdrop = useRef(false);
+  const taRef = useRef(null);
+  const findRef = useRef(null);
+  const isElectron = typeof window !== "undefined" && window.desktop?.isElectron;
+
+  // ---- Find / replace (Notepad-style, no dependency) ----
+  const [findOpen, setFindOpen] = useState(false);
+  const [showReplace, setShowReplace] = useState(false);
+  const [query, setQuery] = useState("");
+  const [replaceWith, setReplaceWith] = useState("");
+  const [matchCase, setMatchCase] = useState(false);
+  const [activeMatch, setActiveMatch] = useState(0);
 
   const dirty = !loading && content !== original;
+
+  // All match start-offsets for the current query, in document order.
+  const matches = useMemo(() => {
+    if (!query) return [];
+    const hay = matchCase ? content : content.toLowerCase();
+    const needle = matchCase ? query : query.toLowerCase();
+    const out = [];
+    for (let i = hay.indexOf(needle); i !== -1; i = hay.indexOf(needle, i + needle.length)) out.push(i);
+    return out;
+  }, [content, query, matchCase]);
+
+  useEffect(() => { setActiveMatch((a) => (matches.length ? Math.min(a, matches.length - 1) : 0)); }, [matches.length]);
+
+  // Select a match and scroll it into view. The value-truncation trick gives an
+  // accurate scrollTop even with soft-wrapping, where line math alone can't.
+  const revealMatch = useCallback((idx) => {
+    const ta = taRef.current;
+    if (!ta || !matches.length) return;
+    const start = matches[idx];
+    const end = start + query.length;
+    const full = ta.value;
+    ta.value = full.slice(0, start);
+    const upto = ta.scrollHeight;
+    ta.value = full;
+    ta.scrollTop = Math.max(0, upto - ta.clientHeight / 2);
+    ta.focus();
+    ta.setSelectionRange(start, end);
+  }, [matches, query]);
+
+  const gotoMatch = useCallback((dir) => {
+    if (!matches.length) return;
+    setActiveMatch((a) => {
+      const next = (a + dir + matches.length) % matches.length;
+      requestAnimationFrame(() => revealMatch(next));
+      return next;
+    });
+  }, [matches, revealMatch]);
+
+  const openFind = useCallback((withReplace) => {
+    setFindOpen(true);
+    if (withReplace) setShowReplace(true);
+    // Seed the query from the current selection, if any.
+    const ta = taRef.current;
+    if (ta && ta.selectionStart != null && ta.selectionEnd > ta.selectionStart) {
+      setQuery(ta.value.slice(ta.selectionStart, ta.selectionEnd));
+    }
+    requestAnimationFrame(() => { findRef.current?.focus(); findRef.current?.select(); });
+  }, []);
+
+  const closeFind = useCallback(() => { setFindOpen(false); taRef.current?.focus(); }, []);
+
+  const replaceOne = () => {
+    if (!matches.length) return;
+    const start = matches[activeMatch];
+    setContent(content.slice(0, start) + replaceWith + content.slice(start + query.length));
+  };
+  const replaceAll = () => {
+    if (!query) return;
+    const re = new RegExp(escapeRe(query), matchCase ? "g" : "gi");
+    const next = content.replace(re, () => replaceWith);
+    if (next !== content) { setContent(next); toast(t("ini.replacedAll", { count: matches.length }), "success"); }
+  };
+
+  const openExternal = () => {
+    if (!path) return;
+    if (isElectron) window.desktop.openPath(path);
+    else toast(t("ini.openExternalDesktop"));
+  };
 
   const loadVersions = useCallback(async () => {
     try { const r = await api(`/api/worlds/${worldId}/ini/versions`); setVersions(r.versions || []); }
@@ -49,12 +130,22 @@ export default function IniEditor({ world, running, onClose }) {
 
   const requestClose = useCallback(() => guard(onClose), [guard, onClose]);
 
-  // Esc closes (with the same unsaved guard).
+  // Keyboard: Ctrl/Cmd+F find, Ctrl/Cmd+H replace, Esc closes find → preview → confirm → editor.
   useEffect(() => {
-    const h = (e) => { if (e.key === "Escape") { if (preview) setPreview(null); else if (confirm) setConfirm(null); else requestClose(); } };
+    const h = (e) => {
+      const mod = e.ctrlKey || e.metaKey;
+      if (mod && (e.key === "f" || e.key === "F")) { e.preventDefault(); openFind(false); return; }
+      if (mod && (e.key === "h" || e.key === "H")) { e.preventDefault(); openFind(true); return; }
+      if (e.key === "Escape") {
+        if (findOpen) closeFind();
+        else if (preview) setPreview(null);
+        else if (confirm) setConfirm(null);
+        else requestClose();
+      }
+    };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
-  }, [requestClose, preview, confirm]);
+  }, [requestClose, preview, confirm, findOpen, openFind, closeFind]);
 
   const save = async () => {
     setSaving(true);
@@ -98,6 +189,8 @@ export default function IniEditor({ world, running, onClose }) {
           <div className="subtle" style={{ fontWeight: 700, fontSize: "0.72rem", flex: 1, minWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {path}
           </div>
+          <button className="btn btn-ghost" onClick={() => openFind(false)} title={t("ini.findTip")}><Icon name="grid" size={14} /> {t("ini.find")}</button>
+          {exists && <button className="btn btn-ghost" onClick={openExternal} title={t("ini.openExternalTip")}><Icon name="upload" size={14} /> {t("ini.openExternal")}</button>}
           {dirty && <span className="chip" style={{ background: "var(--yellow)", color: "#1e1f22" }}>{t("ini.unsaved")}</span>}
           <button className="btn btn-ghost" onClick={requestClose}><Icon name="x" size={14} /> {t("ini.close")}</button>
         </div>
@@ -114,7 +207,38 @@ export default function IniEditor({ world, running, onClose }) {
         {/* Body: editor + version history */}
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 280px", gap: "1rem", flex: 1, minHeight: 0 }}>
           <div style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+            {/* Find / replace bar */}
+            {findOpen && (
+              <div className="panel-inset" style={{ padding: "0.5rem 0.6rem", marginBottom: "0.6rem", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                <div style={{ display: "flex", gap: "0.4rem", alignItems: "center", flexWrap: "wrap" }}>
+                  <input
+                    ref={findRef} className="input" value={query} onChange={(e) => setQuery(e.target.value)}
+                    placeholder={t("ini.findPlaceholder")} style={{ flex: 1, minWidth: 140, padding: "0.35rem 0.6rem" }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") { e.preventDefault(); gotoMatch(e.shiftKey ? -1 : 1); }
+                      else if (e.key === "Escape") { e.preventDefault(); closeFind(); }
+                    }} />
+                  <span className="subtle" style={{ fontWeight: 700, fontSize: "0.72rem", minWidth: 54, textAlign: "center" }}>
+                    {query ? `${matches.length ? activeMatch + 1 : 0}/${matches.length}` : "—"}
+                  </span>
+                  <button className="btn btn-ghost" style={{ padding: "0.3rem 0.5rem" }} disabled={!matches.length} onClick={() => gotoMatch(-1)} title={t("ini.findPrev")}><Icon name="back" size={14} /></button>
+                  <button className="btn btn-ghost" style={{ padding: "0.3rem 0.5rem" }} disabled={!matches.length} onClick={() => gotoMatch(1)} title={t("ini.findNext")}>▼</button>
+                  <button className={`btn ${matchCase ? "btn-primary" : "btn-ghost"}`} style={{ padding: "0.3rem 0.5rem", fontSize: "0.72rem" }} onClick={() => setMatchCase((v) => !v)} title={t("ini.matchCase")}>Aa</button>
+                  <button className="btn btn-ghost" style={{ padding: "0.3rem 0.5rem", fontSize: "0.72rem" }} onClick={() => setShowReplace((v) => !v)}>{showReplace ? t("ini.hideReplace") : t("ini.replace")}</button>
+                  <button className="btn btn-ghost" style={{ padding: "0.3rem 0.5rem" }} onClick={closeFind} title={t("ini.close")}><Icon name="x" size={14} /></button>
+                </div>
+                {showReplace && (
+                  <div style={{ display: "flex", gap: "0.4rem", alignItems: "center", flexWrap: "wrap" }}>
+                    <input className="input" value={replaceWith} onChange={(e) => setReplaceWith(e.target.value)}
+                      placeholder={t("ini.replacePlaceholder")} style={{ flex: 1, minWidth: 140, padding: "0.35rem 0.6rem" }} />
+                    <button className="btn btn-ghost" style={{ padding: "0.3rem 0.6rem", fontSize: "0.74rem" }} disabled={!matches.length} onClick={replaceOne}>{t("ini.replaceOne")}</button>
+                    <button className="btn btn-ghost" style={{ padding: "0.3rem 0.6rem", fontSize: "0.74rem" }} disabled={!matches.length} onClick={replaceAll}>{t("ini.replaceAll")}</button>
+                  </div>
+                )}
+              </div>
+            )}
             <textarea
+              ref={taRef}
               className="input"
               spellCheck={false}
               value={loading ? t("ini.loading") : content}

@@ -3,6 +3,29 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Detect & install missing Windows runtimes.** On a fresh Windows machine the Palworld
+  server needs the Microsoft Visual C++ and DirectX runtimes; without them it exits the
+  instant it starts. The app now detects when they're missing, shows a warning on the
+  world's Overview with a one-click **Install prerequisites** button (downloads Microsoft's
+  VC++ redistributable and runs Epic's bundled prerequisite installer, elevated), and — if
+  a server dies at launch for this reason — says so specifically instead of "exited
+  unexpectedly".
+- **Customizable Discord notification messages.** The Discord tab gains a **Message
+  templates** section: write your own multiline text for join, leave, crash, restart,
+  update and backup events, with click-to-insert placeholders like `{world}`, `{player}`,
+  `{code}` and `{build}`. Leave one blank to keep the built-in default.
+- **Search in the ini editor.** The raw `PalWorldSettings.ini` editor now has a Notepad-style
+  **Ctrl+F** find bar (match count, next/prev, match-case) with **Ctrl+H** find-and-replace,
+  plus an **Open in editor** button to edit the file in your system's default editor.
+
+### Fixed
+- **Create-world platform default on Windows.** Creating a world on a Windows machine
+  defaulted the target platform to "Linux"; it now correctly detects and defaults to the
+  host platform.
+
 ## [2.5.0] — 2026-07-19
 
 ### At a glance
