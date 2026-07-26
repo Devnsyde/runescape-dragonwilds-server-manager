@@ -310,6 +310,31 @@ async function waitForServer(url, maxMs = 60000) {
   return false;
 }
 
+// Kick the server's background engines (world autostart, scheduler, Discord bots, …)
+// as soon as it's up, WITHOUT needing a window. On a normal launch the loaded page does
+// this by hitting an API route; but an autostart-to-tray launch shows no window, so
+// nothing would ever boot — autostart worlds would stay stopped and the Discord bot
+// offline until the user opened the app by hand. Hitting /api/boot here fixes that.
+// Retries a few times in case the DB is briefly locked at startup; boot() is idempotent.
+function triggerBoot(base, attempt = 1) {
+  const req = http.get(`${base}/api/boot`, (res) => {
+    let data = "";
+    res.on("data", (d) => (data += d));
+    res.on("end", () => {
+      let ok = false;
+      try { ok = JSON.parse(data).ok === true; } catch {}
+      if (ok) { logToFile("Background engines boot triggered"); return; }
+      if (attempt < 5) setTimeout(() => triggerBoot(base, attempt + 1), 2000);
+      else logToFile("Boot trigger did not confirm after retries");
+    });
+  });
+  req.on("error", (e) => {
+    if (attempt < 5) setTimeout(() => triggerBoot(base, attempt + 1), 2000);
+    else logToFile(`Boot trigger failed: ${e.message}`);
+  });
+  req.setTimeout(5000, () => { req.destroy(); });
+}
+
 function createWindow() {
   if (mainWindow) { mainWindow.focus(); return; } // never create a second window
 
@@ -399,6 +424,12 @@ function main() {
       showErrorWindow("The bundled web server did not respond within 60 seconds. This usually means a file is missing from the install or a security tool blocked it.");
       return;
     }
+
+    // Boot the background engines now the server answers — do this regardless of whether
+    // a window is about to open, so an autostart-to-tray launch still starts worlds and
+    // connects Discord bots. Fire-and-forget: it retries internally and must never block
+    // window/tray creation.
+    triggerBoot(url);
 
     const hasTray = createTray();
     // Show a window on a normal launch. On a hidden (login) launch, stay in the tray —

@@ -22,6 +22,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - The **ini editor gains Ctrl+F search** (and Ctrl+H replace), plus an open-in-external-editor
   button.
 - **German** is now a built-in language.
+- Fixed: **starting at login now truly runs in the background** — autostart worlds come up
+  and the Discord bot connects without you having to open the window first.
 - Fixed: creating a world on Windows no longer defaults the platform to "Linux".
 
 ### Added
@@ -73,6 +75,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   instead of stacked on one long scroll.
 
 ### Fixed
+- **Autostart-at-login now actually starts your servers.** When the app launched straight
+  to the system tray at login, worlds flagged to auto-start stayed stopped and the Discord
+  bot stayed offline until you manually opened the window — defeating the point of starting
+  at login. The background engines now boot the moment the local server is ready, with no
+  window required, so autostart worlds come up and the Discord bot connects on their own.
 - **Create-world platform default on Windows.** Creating a world on a Windows machine
   defaulted the target platform to "Linux"; it now correctly detects and defaults to the
   host platform.
