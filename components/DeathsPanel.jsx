@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { api, Icon, toast } from "@/components/ui";
+import PalNameMap from "@/components/PalNameMap";
 
 // Friendly phrasing for an EPalDeadType cause (mirrors lib/supervisor causeText).
 const CAUSE_TEXT = {
@@ -17,6 +18,7 @@ export default function DeathsPanel({ worldId, running, onGoToUe4ss, onGoToDisco
   const [data, setData] = useState(null); // { deaths, counts, modInstalled, ue4ssInstalled, bundledAvailable }
   const [installing, setInstalling] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   const load = useCallback(() => {
     api(`/api/worlds/${worldId}/deaths`).then(setData).catch(() => {});
@@ -130,6 +132,20 @@ export default function DeathsPanel({ worldId, running, onGoToUe4ss, onGoToDisco
           </div>
         </div>
       )}
+
+      {/* Pal name mapping (world-scoped override; inherits global then the built-in default) */}
+      <div>
+        <button className="btn btn-ghost" style={{ padding: "0.35rem 0.6rem", fontSize: "0.86rem", fontWeight: 800 }}
+          onClick={() => setShowMap((v) => !v)}>
+          <Icon name={showMap ? "chevronDown" : "chevronRight"} size={16} /> {t("palmap.worldTitle")}
+        </button>
+        {showMap && (
+          <div style={{ marginTop: "0.6rem" }}>
+            <p className="subtle" style={{ fontWeight: 600, fontSize: "0.78rem", margin: "0 0 0.8rem" }}>{t("palmap.worldDesc")}</p>
+            <PalNameMap scope="world" endpoint={`/api/worlds/${worldId}/palnames`} />
+          </div>
+        )}
+      </div>
 
       {/* Death feed */}
       <div>
