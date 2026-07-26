@@ -5,6 +5,7 @@ import { useTranslation, Trans } from "react-i18next";
 import { useTheme } from "@/components/ThemeProvider";
 import { switchLanguage } from "@/lib/i18n/client";
 import { api, Icon, toast } from "@/components/ui";
+import PalNameMap from "@/components/PalNameMap";
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -20,6 +21,7 @@ export default function SettingsPage() {
   const [busyCode, setBusyCode] = useState(""); // code currently installing/updating/deleting
   const [autoLaunch, setAutoLaunchState] = useState(null);
   const [closeToTray, setCloseToTrayState] = useState(null);
+  const [section, setSection] = useState(null); // null = category list; otherwise the open category id
   const isElectron = typeof window !== "undefined" && window.desktop?.isElectron;
 
   useEffect(() => {
@@ -125,10 +127,53 @@ export default function SettingsPage() {
 
   if (!s) return <div className="subtle" style={{ fontWeight: 700 }}>{t("common.loading")}</div>;
 
+  // Settings are grouped into categories. The landing view is a clickable list; picking
+  // one drills into just that category's panels with a back button, so no single page is
+  // crammed. `electronOnly` categories are hidden in the browser build.
+  const CATEGORIES = [
+    { id: "appearance", icon: "sun" },
+    { id: "language", icon: "globe" },
+    { id: "game", icon: "activity" },
+    { id: "updates", icon: "refresh" },
+    { id: "backups", icon: "download" },
+    { id: "desktop", icon: "settings" },
+    { id: "system", icon: "cpu" },
+  ];
+  const cats = CATEGORIES.filter((c) => !c.electronOnly || isElectron);
+
+  // Landing: the category menu.
+  if (!section) {
+    return (
+      <div>
+        <h1 className="heading" style={{ fontSize: "1.9rem", margin: "0 0 1.2rem" }}>{t("settings.title")}</h1>
+        <div style={{ display: "grid", gap: "0.6rem", maxWidth: 680 }}>
+          {cats.map((c) => (
+            <button key={c.id} className="panel" onClick={() => setSection(c.id)}
+              style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "1rem 1.2rem", textAlign: "left", cursor: "pointer", width: "100%" }}>
+              <span style={{ display: "grid", placeItems: "center", width: 40, height: 40, borderRadius: 10, background: "var(--panel-inset, rgba(127,127,127,0.12))", flexShrink: 0 }}>
+                <Icon name={c.icon} size={19} />
+              </span>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: "block", fontWeight: 800, fontSize: "0.98rem" }}>{t(`settings.cat.${c.id}`)}</span>
+                <span className="subtle" style={{ display: "block", fontWeight: 600, fontSize: "0.78rem", marginTop: 2 }}>{t(`settings.cat.${c.id}Desc`)}</span>
+              </span>
+              <Icon name="chevronRight" size={18} />
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Detail: one category's panels, with a back button to the menu.
   return (
     <div>
-      <h1 className="heading" style={{ fontSize: "1.9rem", margin: "0 0 1.2rem" }}>{t("settings.title")}</h1>
+      <button className="btn btn-ghost" style={{ padding: "0.35rem 0.7rem", marginBottom: "1rem" }} onClick={() => setSection(null)}>
+        <Icon name="back" size={16} /> {t("settings.title")}
+      </button>
+      <h1 className="heading" style={{ fontSize: "1.6rem", margin: "0 0 1.2rem" }}>{t(`settings.cat.${section}`)}</h1>
 
+      {section === "appearance" && (
       <div className="panel" style={{ padding: "1.3rem", marginBottom: "1rem" }}>
         <h3 className="heading" style={{ fontSize: "1.05rem", marginTop: 0 }}>{t("settings.appearance")}</h3>
         <label className="label">{t("settings.theme")}</label>
@@ -137,7 +182,9 @@ export default function SettingsPage() {
           <button className={`btn ${theme === "dark" ? "btn-primary" : "btn-ghost"}`} onClick={() => setTheme("dark")}><Icon name="moon" /> {t("settings.dark")}</button>
         </div>
       </div>
+      )}
 
+      {section === "language" && (
       <div className="panel" style={{ padding: "1.3rem", marginBottom: "1rem" }}>
         <h3 className="heading" style={{ fontSize: "1.05rem", marginTop: 0 }}>
           <Icon name="globe" size={17} /> {t("settings.language")}
@@ -236,7 +283,9 @@ export default function SettingsPage() {
           )}
         </div>
       </div>
+      )}
 
+      {section === "game" && (<>
       <div className="panel" style={{ padding: "1.3rem", marginBottom: "1rem" }}>
         <h3 className="heading" style={{ fontSize: "1.05rem", marginTop: 0 }}>{t("settings.chatCaptureTitle")}</h3>
         <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
@@ -250,6 +299,16 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      <div className="panel" style={{ padding: "1.3rem", marginBottom: "1rem" }}>
+        <h3 className="heading" style={{ fontSize: "1.05rem", marginTop: 0 }}>
+          <Icon name="activity" size={17} /> {t("palmap.globalTitle")}
+        </h3>
+        <p className="subtle" style={{ fontWeight: 600, fontSize: "0.78rem", margin: "0 0 0.8rem" }}>{t("palmap.globalDesc")}</p>
+        <PalNameMap scope="global" endpoint="/api/palnames" />
+      </div>
+      </>)}
+
+      {section === "desktop" && (<>
       {isElectron && (
         <div className="panel" style={{ padding: "1.3rem", marginBottom: "1rem" }}>
           <h3 className="heading" style={{ fontSize: "1.05rem", marginTop: 0 }}>{t("settings.autoLaunchTitle")}</h3>
@@ -293,7 +352,9 @@ export default function SettingsPage() {
           </p>
         )}
       </div>
+      </>)}
 
+      {section === "updates" && (
       <div className="panel" style={{ padding: "1.3rem", marginBottom: "1rem" }}>
         <h3 className="heading" style={{ fontSize: "1.05rem", marginTop: 0 }}>{t("settings.autoUpdateTitle")}</h3>
         <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
@@ -315,7 +376,9 @@ export default function SettingsPage() {
           <p className="subtle" style={{ fontWeight: 600, fontSize: "0.72rem", margin: "0.5rem 0 0" }}>{t("settings.updateCheckIntervalHelp")}</p>
         </div>
       </div>
+      )}
 
+      {section === "backups" && (
       <div className="panel" style={{ padding: "1.3rem", marginBottom: "1rem" }}>
         <h3 className="heading" style={{ fontSize: "1.05rem", marginTop: 0 }}>{t("settings.backupsTitle")}</h3>
         <label className="label">{t("settings.keepLastN")}</label>
@@ -350,8 +413,10 @@ export default function SettingsPage() {
           </div>
         )}
       </div>
+      )}
 
-      <div className="panel" style={{ padding: "1.3rem" }}>
+      {section === "system" && (<>
+      <div className="panel" style={{ padding: "1.3rem", marginBottom: "1rem" }}>
         <h3 className="heading" style={{ fontSize: "1.05rem", marginTop: 0 }}>{t("settings.steamcmdTitle")}</h3>
         <p style={{ fontWeight: 700, fontSize: "0.86rem", margin: 0 }}>
           <span className={steam?.installed ? "s-running" : "s-crashed"}>
@@ -375,6 +440,7 @@ export default function SettingsPage() {
           </Link>
         </div>
       </div>
+      </>)}
     </div>
   );
 }

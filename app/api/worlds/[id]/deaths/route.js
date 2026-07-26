@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
 const sup = require("@/lib/supervisor");
 const ue4ss = require("@/lib/ue4ss");
+const palnames = require("@/lib/palnames");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -16,9 +17,23 @@ export async function GET(_req, { params }) {
   } catch {}
   let ue4ssInstalled = false;
   try { ue4ssInstalled = ue4ss.detect(w.install_dir).installed; } catch {}
+
+  // Re-resolve each death's killer name from its raw codename through the current
+  // world -> global -> default override chain, so renaming a Pal (or naming a new one)
+  // re-labels past deaths in the feed. Rows predating killer_raw keep their stored name;
+  // player killers are always their own name.
+  let worldMap = {};
+  try { worldMap = JSON.parse(w.pal_name_overrides || "{}") || {}; } catch {}
+  const globalMap = dbm.getSetting("palNameOverrides", {}) || {};
+  const deaths = dbm.listDeaths(params.id, 100).map((d) =>
+    d.killer_raw && d.killer_kind !== "player"
+      ? { ...d, killer: palnames.resolve(d.killer_raw, worldMap, globalMap) }
+      : d
+  );
+
   return NextResponse.json({
     ok: true,
-    deaths: dbm.listDeaths(params.id, 100),
+    deaths,
     counts: dbm.deathCounts(params.id, 50),
     modInstalled: sup.deathModInstalled(w.install_dir),
     ue4ssInstalled,

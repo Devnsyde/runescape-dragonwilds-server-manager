@@ -15,6 +15,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   or player killed them — in the Overview log and as its own customizable Discord message.
 - **Discord notifications are now customizable** — write your own message for each event
   with placeholders like `{player}` and `{world}`.
+- **Pal names in death messages are editable** — rename any Pal globally or per-world, with
+  search, and new Pals are detected automatically.
+- **Settings is now a tidy categorized menu** — pick a category to drill in, instead of one
+  long scroll.
 - The **ini editor gains Ctrl+F search** (and Ctrl+H replace), plus an open-in-external-editor
   button.
 - **German** is now a built-in language.
@@ -48,12 +52,25 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   customizable templates — killed by a Pal, killed by a player, and environmental — with
   `{player}`, `{pal}`, `{killer}` and `{cause}` placeholders and the names in **bold**.
 
+- **Editable Pal name mapping.** The friendly names shown for a killer in death messages
+  are now yours to change — globally in **Settings → Pal display names** and per-world in the
+  **Deaths** tab — with a searchable list of every built-in Pal and NPC. Names resolve
+  world-override → global-override → built-in default, and renaming one re-labels past
+  deaths in the feed. Pals seen in-game that the app doesn't have a name for yet are
+  **detected automatically** and pinned to the top of the list for you to name.
+
 - **Search in the ini editor.** The raw `PalWorldSettings.ini` editor now has a Notepad-style
   **Ctrl+F** find bar (match count, next/prev, match-case) with **Ctrl+H** find-and-replace,
   plus an **Open in editor** button to edit the file in your system's default editor.
 
 - **German language pack.** German (`de`) is now bundled as a built-in language and is also
   available from the in-app community language catalog.
+
+### Changed
+- **Settings page reorganized into categories.** The Settings screen is now a clickable list
+  of categories — Appearance, Language, In-game features, Server updates, Backups, Desktop app
+  and System — each opening its own page with a back button, so related options are grouped
+  instead of stacked on one long scroll.
 
 ### Fixed
 - **Create-world platform default on Windows.** Creating a world on a Windows machine
