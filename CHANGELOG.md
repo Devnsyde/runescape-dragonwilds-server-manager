@@ -3,7 +3,7 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.6.0] — Unreleased
+## [2.6.0] — 2026-07-26
 
 ### At a glance
 - On a fresh Windows machine, the app now **detects the missing Visual C++ / DirectX
