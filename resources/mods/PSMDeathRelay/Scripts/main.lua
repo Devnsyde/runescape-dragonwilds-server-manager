@@ -4,15 +4,26 @@
 --   Pal/Saved/psm-deaths.jsonl
 -- which the Palworld Server Manager app tails to log the death and route it to Discord.
 --
--- Reverse-engineered on the shipping dedicated server (see the app's death-tracking
--- notes). Two hooks:
---   * /Script/Pal.PalPlayerCharacter:OnDamagePlayer_Server(PalDamageResult)
---       fires whenever a player TAKES damage; .Attacker is who hit them. We remember the
---       most recent attacker per victim so we can name the killer on death.
---   * /Script/Pal.PalBattleManager:EventOnPlayerDeadCompletely(victim, PalDyingEndInfo)
---       fires once when a player has died (ALL death types — combat and environmental).
---       victim -> controller -> PlayerState.PlayerNamePrivate gives the name;
---       PalDyingEndInfo.DeadType gives the cause (EPalDeadType enum).
+-- Hook (one, low-frequency):
+--   /Script/Pal.PalBattleManager:EventOnPlayerDeadCompletely(victim, PalDyingEndInfo)
+--     fires once when a player has died (ALL death types — combat and environmental).
+--     victim -> controller -> PlayerState.PlayerNamePrivate gives the name;
+--     PalDyingEndInfo.DeadType gives the cause (EPalDeadType enum).
+--
+-- WHY NO KILLER ATTRIBUTION (removed in 2.6.1):
+--   Earlier builds also hooked PalPlayerCharacter:OnDamagePlayer_Server — fired on EVERY
+--   instance of a player taking damage — to remember the most recent attacker and name the
+--   killer. That hook dereferenced the damage Attacker actor, which is null for
+--   environmental damage and not-yet-valid for a just-spawned / just-logged-in player.
+--   Reading a member off that invalid UObject raised a NATIVE EXCEPTION_ACCESS_VIOLATION
+--   (reading address 0x1) deep inside UE4SS — and a native access violation is NOT catchable
+--   by Lua pcall, so it took the whole dedicated server down (observed: two identical crashes
+--   with ~2 players actively playing). Killer attribution isn't worth crashing the server, so
+--   the damage hook is gone. Deaths and their cause are still reported.
+--
+-- HARDENING: every UObject we touch is checked with is_valid() (UE4SS's UObject:IsValid(),
+--   which is safe to call on a null/invalid handle and returns false) BEFORE any property
+--   read, so this hook can never repeat that native crash even on a malformed death event.
 --
 -- Requires UE4SS (experimental Palworld build) in Pal/Binaries/Win64.
 --
@@ -48,15 +59,16 @@ end
 
 local function now_ms() return math.floor(os.time() * 1000) end
 
--- Append one death record. killer/killerKind may be empty for environmental deaths.
-local function append_death(victim, cause, killer, killerKind)
+-- Append one death record. Killer is always empty now (attribution removed); the app
+-- treats an empty killer as an environmental / unattributed death.
+local function append_death(victim, cause)
     local path = resolve_out_path()
     if not path then return end
     local ok, f = pcall(io.open, path, "a")
     if not ok or not f then OUT_PATH = nil; return end
     f:write(string.format(
-        '{"victim":"%s","cause":"%s","killer":"%s","killerKind":"%s","at":%d}\n',
-        esc(victim), esc(cause), esc(killer), esc(killerKind), now_ms()))
+        '{"victim":"%s","cause":"%s","killer":"","killerKind":"","at":%d}\n',
+        esc(victim), esc(cause), now_ms()))
     f:close()
 end
 
@@ -75,30 +87,29 @@ local function unwrap(p)
     return p
 end
 
+-- Safe validity gate for a UE4SS UObject handle. UObject:IsValid() is safe to call on a
+-- null/stale handle (it checks the engine's object table, it does NOT dereference game
+-- memory) and returns false — so this is the guard that prevents the native access
+-- violation that a raw property read on an invalid object would cause.
+local function is_valid(o)
+    if type(o) ~= "userdata" then return false end
+    local ok, v = pcall(function() return o:IsValid() end)
+    return ok and v == true
+end
+
 -- A character's player name via its controller's PlayerState (engine APlayerState).
+-- Every hop is validity-gated before the next dereference.
 local function player_name_of(char)
+    if not is_valid(char) then return "" end
     local nm = ""
     pcall(function()
         local ctrl = char:GetController()
-        if ctrl and ctrl.PlayerState then nm = to_str(ctrl.PlayerState.PlayerNamePrivate) end
+        if not is_valid(ctrl) then return end
+        local ps = ctrl.PlayerState
+        if not is_valid(ps) then return end
+        nm = to_str(ps.PlayerNamePrivate)
     end)
     return nm
-end
-
--- Classify a damage Attacker actor -> name + kind. Players report their player name;
--- everything else reports its internal species codename (BP_NegativeKoala_C -> NegativeKoala),
--- which the app maps to a friendly name (Depresso).
-local function classify_attacker(actor)
-    if type(actor) ~= "userdata" then return "", "" end
-    local full = ""
-    pcall(function() full = actor:GetFullName() end)   -- "<ClassName> <Path>"
-    local cls = full:match("^(%S+)") or ""
-    if cls:find("^BP_Player") then
-        return player_name_of(actor), "player"
-    end
-    local species = cls:gsub("^BP_", ""):gsub("_C$", "")
-    if cls:find("^BP_NPC") then return species, "npc" end
-    return species, "pal"
 end
 
 -- Resolve an EPalDeadType value to its short name (e.g. 1 -> "Attack").
@@ -112,29 +123,10 @@ local function dead_type_name(v)
     return tostring(v)
 end
 
--- Most-recent attacker per victim name, so a death can name its killer.
-local KILL_WINDOW_MS = 15000
-local last_attacker = {}   -- victimName -> { name, kind, at }
-
-local function on_player_damaged(self, dmg_param)
-    pcall(function()
-        local victim = unwrap(self)
-        if type(victim) ~= "userdata" then return end
-        local vname = player_name_of(victim)
-        if vname == "" then return end
-        local res = unwrap(dmg_param)
-        local attacker = nil
-        pcall(function() attacker = res.Attacker end)
-        if not attacker then return end
-        local name, kind = classify_attacker(attacker)
-        if name ~= "" then last_attacker[vname] = { name = name, kind = kind, at = now_ms() } end
-    end)
-end
-
 local function on_player_dead(self, victim_param, info_param)
     pcall(function()
         local victim = unwrap(victim_param)
-        if type(victim) ~= "userdata" then return end
+        if not is_valid(victim) then return end
         local vname = player_name_of(victim)
         if vname == "" then return end
 
@@ -144,23 +136,13 @@ local function on_player_dead(self, victim_param, info_param)
             if info then cause = dead_type_name(info.DeadType) end
         end)
 
-        -- Attach the killer only for attack deaths with a fresh attacker; environmental
-        -- deaths (Falling/Drown/Burn/...) stay killer-less.
-        local killer, kind = "", ""
-        local la = last_attacker[vname]
-        if la and cause == "Attack" and (now_ms() - la.at) <= KILL_WINDOW_MS then
-            killer, kind = la.name, la.kind
-        end
-        last_attacker[vname] = nil
-
-        append_death(vname, cause, killer, kind)
-        print(string.format("[PSMDeathRelay] death: %s cause=%s killer=%s\n", vname, cause, killer))
+        append_death(vname, cause)
+        print(string.format("[PSMDeathRelay] death: %s cause=%s\n", vname, cause))
     end)
 end
 
--- The Pal classes these live on aren't in memory at mod-load, so register with retries.
+-- The Pal class this lives on isn't in memory at mod-load, so register with retries.
 local HOOKS = {
-    { path = "/Script/Pal.PalPlayerCharacter:OnDamagePlayer_Server", fn = on_player_damaged, done = false },
     { path = "/Script/Pal.PalBattleManager:EventOnPlayerDeadCompletely", fn = on_player_dead, done = false },
 }
 
@@ -176,11 +158,11 @@ local function try_register()
     return remaining
 end
 
--- Attempt now and again as the game finishes loading, until both hooks are registered.
+-- Attempt now and again as the game finishes loading, until the hook is registered.
 resolve_out_path()
 if try_register() > 0 then
     for _, delay in ipairs({ 8000, 20000, 45000 }) do
         ExecuteWithDelay(delay, function() pcall(try_register) end)
     end
 end
-print("[PSMDeathRelay] loaded\n")
+print("[PSMDeathRelay] loaded (death-only, killer attribution disabled)\n")
