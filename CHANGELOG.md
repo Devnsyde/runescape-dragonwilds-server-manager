@@ -3,6 +3,20 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.6.1] — 2026-07-26
+
+### Fixed
+- **Death tracking could crash the dedicated server.** The death relay's killer-attribution
+  hook fired on every instance of a player taking damage and read the attacker actor —
+  which is null for environmental damage and not-yet-valid for a just-joined player. Reading
+  a field off that invalid object raised a **native access violation inside UE4SS** (not
+  catchable by the mod's Lua error handling), taking the whole server down — seen with two
+  players actively playing. The relay no longer installs that hook: it now uses only the
+  once-per-death event and validity-checks every game object before touching it. **Deaths and
+  their cause are still tracked; the automatic "killed by <Pal>" name is no longer shown.**
+  If you had death tracking enabled, **re-install the relay** (world → Deaths → Remove, then
+  Install) after updating so the server picks up the fixed mod.
+
 ## [2.6.0] — 2026-07-26
 
 ### At a glance
