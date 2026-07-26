@@ -9,6 +9,11 @@ export const runtime = "nodejs";
 export async function GET(_req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  // Ensure the death tailer is running for this world if it's up — covers servers the app
+  // adopted (never spawned) so opening this tab alone is enough to start catching deaths.
+  try {
+    if (sup.isRunning(params.id) || sup.pidAlive(w.process_id)) sup.ensureDeathTail(params.id, w.install_dir);
+  } catch {}
   let ue4ssInstalled = false;
   try { ue4ssInstalled = ue4ss.detect(w.install_dir).installed; } catch {}
   return NextResponse.json({
