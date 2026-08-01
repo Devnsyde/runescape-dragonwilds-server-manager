@@ -5,9 +5,17 @@ const fs = require("fs");
 const os = require("os");
 const { spawn } = require("child_process");
 const http = require("http");
+const crypto = require("crypto");
 
 const isDev = process.env.NODE_ENV === "development";
 const PORT = 4317;
+
+// Per-launch secret proving a request is the trusted desktop app rather than a Remote
+// Access guest (lib/remoteauth). Passed to the server as env and pre-set as an HttpOnly
+// cookie on this window's session, so a network guest — who has neither — can never be
+// mistaken for the admin, even when a raw-TCP tunnel makes their request look like
+// 127.0.0.1. Regenerated every launch.
+const ADMIN_TOKEN = crypto.randomBytes(24).toString("hex");
 let mainWindow = null;
 let nextProc = null;
 let serverReady = false;
@@ -54,6 +62,19 @@ if (!gotLock) {
 
 function dataDir() {
   return app.getPath("userData");
+}
+
+// Which host the Next server should bind to. Loopback by default (unchanged behaviour);
+// 0.0.0.0 once the user turns on same-network access in Remote Access. The choice is
+// mirrored into a tiny marker file by the /api/remote/config route (the DB is the source
+// of truth), so we can read it here without opening sqlite before the server is up.
+function readBindHost() {
+  try {
+    const raw = fs.readFileSync(path.join(dataDir(), "remote-bind.json"), "utf8");
+    const host = JSON.parse(raw).host;
+    if (host === "0.0.0.0") return "0.0.0.0";
+  } catch {}
+  return "127.0.0.1";
 }
 
 function resourcePath() {
@@ -266,7 +287,10 @@ function startNextServer() {
   const env = {
     ...process.env,
     PORT: String(PORT),
-    HOSTNAME: "127.0.0.1",
+    // Loopback unless the user enabled same-network (LAN) access in Remote Access.
+    HOSTNAME: readBindHost(),
+    // The desktop app's proof-of-trust for Remote Access (see ADMIN_TOKEN above).
+    PSM_ADMIN_TOKEN: ADMIN_TOKEN,
     NODE_ENV: "production",
     PALWORLD_MANAGER_DATA_DIR: dataDir(),
     // Expose the installed app version to the server so the UI can check for updates.
@@ -291,6 +315,28 @@ function startNextServer() {
   nextProc.stderr.on("data", (d) => logToFile(`[next:err] ${d.toString().trim()}`));
   nextProc.on("error", (e) => logToFile(`Next server spawn error: ${e.message}`));
   nextProc.on("exit", (code) => logToFile(`Next server exited: ${code}`));
+}
+
+// Restart the Next child so a changed bind host (loopback ↔ 0.0.0.0) takes effect. Waits
+// for the old process to release the port before respawning, then re-boots the background
+// engines. No-op in dev (the dev server is run by the npm script, not us).
+async function restartNextServer() {
+  if (isDev) return false;
+  await new Promise((resolve) => {
+    const p = nextProc;
+    if (!p) return resolve();
+    let done = false;
+    const finish = () => { if (!done) { done = true; resolve(); } };
+    p.once("exit", finish);
+    try { p.kill(); } catch { finish(); }
+    setTimeout(finish, 4000); // never hang the UI on a stuck child
+  });
+  nextProc = null;
+  startNextServer();
+  const base = `http://127.0.0.1:${PORT}`;
+  const up = await waitForServer(base, 30000);
+  if (up) triggerBoot(base);
+  return up;
 }
 
 function pingServer(url) {
@@ -362,7 +408,14 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
 
   const url = isDev ? process.env.ELECTRON_START_URL : `http://127.0.0.1:${PORT}`;
-  mainWindow.loadURL(url);
+  // Pre-set the admin trust cookie on this window's session BEFORE the first navigation,
+  // so the desktop app is recognised as the trusted admin from the very first request.
+  // It's HttpOnly (invisible to page JS) and only ever lives in this Electron session —
+  // a remote guest's browser has no way to obtain it.
+  mainWindow.webContents.session.cookies
+    .set({ url: `http://127.0.0.1:${PORT}`, name: "psm_admin", value: ADMIN_TOKEN, httpOnly: true, sameSite: "lax" })
+    .catch(() => {})
+    .finally(() => { if (mainWindow) mainWindow.loadURL(url); });
 
   // Don't auto-show when we launched straight to the tray — the window is built so a
   // tray click has something to reveal, but it stays hidden until asked for.
@@ -488,4 +541,15 @@ ipcMain.handle("get-close-to-tray", () => readCloseToTrayPref());
 ipcMain.handle("set-close-to-tray", (_e, enabled) => {
   writeCloseToTrayPref(!!enabled);
   return !!enabled;
+});
+
+// Remote Access — same-network (LAN) bind toggle. The renderer writes the choice through
+// the API (which persists it + the marker file); this applies it by restarting the server
+// on the new host. Returns whether the server came back up.
+ipcMain.handle("remote-get-lanbind", () => readBindHost() === "0.0.0.0");
+ipcMain.handle("remote-set-lanbind", async (_e, enabled) => {
+  const host = enabled ? "0.0.0.0" : "127.0.0.1";
+  try { fs.writeFileSync(path.join(dataDir(), "remote-bind.json"), JSON.stringify({ host }), "utf8"); } catch {}
+  const ok = await restartNextServer();
+  return { ok, host };
 });

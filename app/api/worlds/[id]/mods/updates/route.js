@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 const mods = require("@/lib/mods");
+const ra = require("@/lib/remoteauth");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 // GET — compare each installed mod's Info.json Version against Steam's copy of the
 // same Workshop item. Read-only: nothing is copied until the user asks.
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "mods" });
+  if (denied) return denied;
   try { return NextResponse.json({ ok: true, checked: Date.now(), updates: mods.checkWorkshopUpdates(params.id) }); }
   catch (e) { return NextResponse.json({ ok: false, error: e.message }, { status: 400 }); }
 }
@@ -13,6 +16,8 @@ export async function GET(_req, { params }) {
 // POST { folder } — re-copy that one mod from Steam. POST {} — re-copy every mod
 // that a fresh check says is out of date.
 export async function POST(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "mods", action: "mods.update", mutating: true });
+  if (denied) return denied;
   try {
     const { folder } = await req.json().catch(() => ({}));
     if (folder) {

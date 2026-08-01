@@ -13,4 +13,7 @@ contextBridge.exposeInMainWorld("desktop", {
   setAutoLaunch: (enabled) => ipcRenderer.invoke("set-auto-launch", enabled),
   getCloseToTray: () => ipcRenderer.invoke("get-close-to-tray"),
   setCloseToTray: (enabled) => ipcRenderer.invoke("set-close-to-tray", enabled),
+  // Remote Access: apply the same-network (LAN) bind by restarting the local server.
+  getLanBind: () => ipcRenderer.invoke("remote-get-lanbind"),
+  setLanBind: (enabled) => ipcRenderer.invoke("remote-set-lanbind", enabled),
 });

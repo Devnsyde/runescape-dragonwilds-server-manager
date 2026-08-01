@@ -3,16 +3,19 @@ const dbm = require("@/lib/db");
 const bot = require("@/lib/discordbot");
 const cfgLib = require("@/lib/discord-bot-config");
 const { boot } = require("@/lib/bootstrap");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 // GET: everything the UI needs, minus the token. publicConfig() is the only shape that
 // ever crosses this line — the token goes in and never comes back out.
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
   boot();
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "discordbot" });
+  if (denied) return denied;
 
   // Self-heal: a bot that's switched on but not connected should come back by itself.
   // boot() only sweeps once per server start, so a token that arrives later — or a
@@ -36,6 +39,8 @@ export async function POST(req, { params }) {
   boot();
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "discordbot", action: "discordbot.save", mutating: true });
+  if (denied) return denied;
   const body = await req.json();
 
   // --- token ---
@@ -126,10 +131,12 @@ export async function POST(req, { params }) {
 }
 
 // DELETE: forget the bot entirely, token included.
-export async function DELETE(_req, { params }) {
+export async function DELETE(req, { params }) {
   boot();
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "discordbot", action: "discordbot.remove", mutating: true });
+  if (denied) return denied;
   await bot.stopBot(params.id);
   dbm.updateWorld(params.id, { discord_bot: null });
   return NextResponse.json({ ok: true });

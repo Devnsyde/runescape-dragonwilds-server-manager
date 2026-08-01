@@ -1,7 +1,10 @@
 const sup = require("@/lib/supervisor");
+const ra = require("@/lib/remoteauth");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "chat" });
+  if (denied) return denied;
   const worldId = params.id;
   const encoder = new TextEncoder();
   let unsub = null;

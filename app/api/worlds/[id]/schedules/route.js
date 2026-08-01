@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 const crypto = require("crypto");
 const dbm = require("@/lib/db");
 const { ensureScheduler } = require("@/lib/scheduler");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "schedule" });
+  if (denied) return denied;
   return NextResponse.json({ ok: true, schedules: dbm.listSchedules(params.id) });
 }
 
@@ -15,6 +18,8 @@ const MODES = ["interval", "daily", "minutes", "on_join"];
 const MESSAGE_JOBS = ["system_message", "onscreen_notice"];
 
 export async function POST(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "schedule", action: "schedule.create", mutating: true });
+  if (denied) return denied;
   const b = await req.json();
   const job_type = String(b.job_type || "");
   const mode = String(b.mode || "");
@@ -69,6 +74,8 @@ export async function POST(req, { params }) {
 // Toggle a schedule's one-shot "skip the next run" flag. Only mutates schedules that
 // belong to this world, so a stray id can't touch another world's rules.
 export async function PATCH(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "schedule", action: "schedule.update", mutating: true });
+  if (denied) return denied;
   const b = await req.json();
   const sid = String(b.id ?? new URL(req.url).searchParams.get("sid") ?? "");
   if (!sid) return NextResponse.json({ ok: false, error: "A schedule id is required." }, { status: 400 });
@@ -79,6 +86,8 @@ export async function PATCH(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "schedule", action: "schedule.delete", mutating: true });
+  if (denied) return denied;
   const id = new URL(req.url).searchParams.get("sid");
   if (id) dbm.deleteSchedule(id);
   return NextResponse.json({ ok: true });

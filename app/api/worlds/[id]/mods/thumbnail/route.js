@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 const fs = require("fs");
 const path = require("path");
 const mods = require("@/lib/mods");
+const ra = require("@/lib/remoteauth");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -11,6 +12,8 @@ const MIME = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg" 
 // disk access, so mod art has to come back through the server. 404 (not an error
 // page) when a mod ships no thumbnail: the UI just falls back to its icon.
 export async function GET(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "mods" });
+  if (denied) return denied;
   const folder = new URL(req.url).searchParams.get("folder");
   if (!folder) return NextResponse.json({ ok: false, error: "folder required" }, { status: 400 });
   try {

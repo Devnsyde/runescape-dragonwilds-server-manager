@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
+const ra = require("@/lib/remoteauth");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function POST(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "admin", action: "world.customize", mutating: true });
+  if (denied) return denied;
   const { icon_data, banner_data, accent_color, display_name } = await req.json();
   const patch = {};
   // basic size guard: data URLs must be reasonable (<400KB) to keep the DB small

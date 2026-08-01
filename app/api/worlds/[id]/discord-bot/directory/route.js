@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
 const bot = require("@/lib/discordbot");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -25,9 +26,11 @@ function defaultAvatar(user) {
 // Missing Access. That's a switch only the bot's owner can flip in the developer
 // portal, so we report it as a state rather than an error and let the UI explain it —
 // the paste-an-id path keeps working either way.
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "discordbot" });
+  if (denied) return denied;
 
   const cfg = bot.readConfig(params.id);
   if (!cfg.token || !cfg.guildId) return NextResponse.json({ ok: true, roles: [], members: [], channels: [], membersNeedIntent: false });

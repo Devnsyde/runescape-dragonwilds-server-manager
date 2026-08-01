@@ -4,6 +4,7 @@ const rest = require("@/lib/restclient");
 const sup = require("@/lib/supervisor");
 const steam = require("@/lib/steamcmd");
 const { boot } = require("@/lib/bootstrap");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -22,9 +23,15 @@ function ensureBuildId(w) {
   return w;
 }
 
-export async function GET() {
+export async function GET(req) {
+  const gate = ra.authorize(req, {});
+  if (!gate.ok) return NextResponse.json({ ok: false, error: gate.reason }, { status: gate.status });
   boot();
-  const worlds = dbm.listWorlds().map(ensureBuildId);
+  let worlds = dbm.listWorlds().map(ensureBuildId);
+  // A per-world code only ever sees its own world in the list.
+  if (!gate.admin && gate.code && gate.code.scope === "world") {
+    worlds = worlds.filter((w) => w.world_id === gate.code.world_id);
+  }
   const enriched = await Promise.all(
     worlds.map(async (w) => {
       const running = sup.isRunning(w.world_id) || sup.pidAlive(w.process_id);

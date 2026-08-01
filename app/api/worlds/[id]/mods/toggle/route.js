@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 const mods = require("@/lib/mods");
+const ra = require("@/lib/remoteauth");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function POST(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "mods", action: "mods.toggle", mutating: true });
+  if (denied) return denied;
   const { packageName, enabled, global, force } = await req.json();
   try {
     if (typeof global === "boolean") return NextResponse.json({ ok: true, ...mods.setGlobalEnable(params.id, global) });

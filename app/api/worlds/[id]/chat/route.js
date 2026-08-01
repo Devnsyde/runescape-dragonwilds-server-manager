@@ -2,12 +2,15 @@ import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
 const sup = require("@/lib/supervisor");
 const ue4ss = require("@/lib/ue4ss");
+const ra = require("@/lib/remoteauth");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 // GET: current chat buffer + whether the capture mod / UE4SS are installed for this
 // world, and whether the capture feature is enabled globally.
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "chat" });
+  if (denied) return denied;
   const w = dbm.getWorld(params.id);
   const modInstalled = w ? sup.chatModInstalled(w.install_dir) : false;
   let ue4ssInstalled = false;
@@ -23,9 +26,11 @@ export async function GET(_req, { params }) {
 }
 
 // POST: install the bundled PSMChatRelay UE4SS mod into this world's server.
-export async function POST(_req, { params }) {
+export async function POST(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "chat", action: "chat.installMod", mutating: true });
+  if (denied) return denied;
   try {
     const res = sup.installChatMod(w.install_dir);
     dbm.logEvent(params.id, "mods", "Installed chat relay mod (PSMChatRelay)");
@@ -37,9 +42,11 @@ export async function POST(_req, { params }) {
 
 // DELETE: remove the chat relay mod from this world's server. The escape hatch if a
 // Palworld update ever makes the mod misbehave — the game then runs mod-free.
-export async function DELETE(_req, { params }) {
+export async function DELETE(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "chat", action: "chat.removeMod", mutating: true });
+  if (denied) return denied;
   try {
     const res = sup.uninstallChatMod(w.install_dir);
     dbm.logEvent(params.id, "mods", "Removed chat relay mod (PSMChatRelay)");

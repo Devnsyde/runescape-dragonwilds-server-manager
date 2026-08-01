@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
 const ini = require("@/lib/ini");
 const AdmZip = require("adm-zip");
+const ra = require("@/lib/remoteauth");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -10,6 +11,8 @@ const MANAGED = new Set(["PublicPort","RESTAPIPort","RESTAPIEnabled","RCONPort",
 export async function POST(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "settings", action: "settings.import", mutating: true });
+  if (denied) return denied;
   const body = await req.json();  // { zipBase64 } or { iniText }
   let iniText = body.iniText;
   try {

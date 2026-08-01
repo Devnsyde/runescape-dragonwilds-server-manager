@@ -2,14 +2,17 @@ import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
 const ini = require("@/lib/ini");
 const AdmZip = require("adm-zip");
+const ra = require("@/lib/remoteauth");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 // Exports a world PROFILE (settings + customization + metadata) as a zip.
 // Does NOT include the multi-GB save/install — this is for sharing config.
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "admin" });
+  if (denied) return denied;
   const s = ini.readSettings(w.install_dir, w.platform);
   const MANAGED = new Set(["PublicPort","RESTAPIPort","RESTAPIEnabled","RCONPort","RCONEnabled","AdminPassword","ServerPassword","PublicIP"]);
   const portable = {};

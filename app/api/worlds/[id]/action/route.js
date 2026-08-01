@@ -3,6 +3,7 @@ const sup = require("@/lib/supervisor");
 const warn = require("@/lib/warn");
 const { notify } = require("@/lib/notify");
 const dbm = require("@/lib/db");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -11,6 +12,8 @@ export async function POST(req, { params }) {
   const { action } = await req.json();
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "overview", action: `world.${action}`, mutating: true });
+  if (denied) return denied;
   try {
     let result;
     if (action === "start") { result = await sup.startWorld(params.id); notify(params.id, "start", `${w.display_name} started`); }

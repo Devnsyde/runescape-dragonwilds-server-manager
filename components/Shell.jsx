@@ -13,6 +13,7 @@ import { useJobsPoll, summarize, ProgressBar } from "@/components/jobsClient";
 const NAV = [
   { href: "/", icon: "grid", labelKey: "nav.worlds", match: (p) => p === "/" || p.startsWith("/worlds") },
   { href: "/usage", icon: "activity", labelKey: "nav.usage", match: (p) => p.startsWith("/usage") },
+  { href: "/remote-access", icon: "share", labelKey: "nav.remoteAccess", match: (p) => p.startsWith("/remote-access") },
   { href: "/settings", icon: "settings", labelKey: "nav.settings", match: (p) => p.startsWith("/settings") },
   { href: "/info", icon: "info", labelKey: "nav.info", match: (p) => p.startsWith("/info") },
 ];
@@ -56,6 +57,11 @@ export default function Shell({ children }) {
   }, []);
 
   const W = collapsed ? 68 : 236;
+
+  // The Remote Access guest surface (/remote) is its own self-contained shell — no admin
+  // sidebar, jobs, or first-run wizard. (/remote-access is the admin page and keeps the
+  // sidebar.) Hooks above always run; only the chrome is skipped.
+  if (path === "/remote" || path.startsWith("/remote/")) return <>{children}</>;
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", height: "100vh", overflow: "hidden" }}>

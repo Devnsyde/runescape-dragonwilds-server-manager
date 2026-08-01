@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
 const { loginStats } = require("@/lib/playerstats");
 const rewards = require("@/lib/loginrewards");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -10,9 +11,11 @@ export const runtime = "nodejs";
 // world's stored join history (sessions table), with the DailyLoginRewards mod's own
 // streak numbers merged in when its players.json is available (so the two stay in
 // sync). Kept off the every-5s world GET so the Players tab only pays for it while open.
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "players" });
+  if (denied) return denied;
   try {
     const stats = loginStats(w.world_id);
     const mod = rewards.readStreaks(w);

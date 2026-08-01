@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 // Edit a pending scheduled broadcast's message and/or time.
 export async function PATCH(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "broadcast", action: "broadcast.edit", mutating: true });
+  if (denied) return denied;
   const body = await req.json();
   const patch = {};
   if (typeof body.message === "string") {
@@ -26,7 +29,9 @@ export async function PATCH(req, { params }) {
 }
 
 // Delete (cancel) a pending scheduled broadcast.
-export async function DELETE(_req, { params }) {
+export async function DELETE(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "broadcast", action: "broadcast.cancel", mutating: true });
+  if (denied) return denied;
   dbm.deleteBroadcast(params.bid);
   return NextResponse.json({ ok: true });
 }

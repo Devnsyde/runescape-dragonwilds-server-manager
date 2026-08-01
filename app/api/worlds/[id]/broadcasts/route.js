@@ -5,6 +5,7 @@ const rest = require("@/lib/restclient");
 const sup = require("@/lib/supervisor");
 const ue4ss = require("@/lib/ue4ss");
 const { ensureScheduler } = require("@/lib/scheduler");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -21,7 +22,9 @@ async function deliverBroadcast(w, message) {
 }
 
 // List this world's pending scheduled broadcasts + on-screen-mod status for the UI.
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "broadcast" });
+  if (denied) return denied;
   const w = dbm.getWorld(params.id);
   const modInstalled = w ? sup.broadcastModInstalled(w.install_dir) : false;
   let ue4ssInstalled = false;
@@ -40,6 +43,8 @@ export async function GET(_req, { params }) {
 export async function POST(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "broadcast", action: "broadcast.send", mutating: true });
+  if (denied) return denied;
   const body = await req.json();
   const message = String(body.message || "").trim();
   if (!message) return NextResponse.json({ ok: false, error: "Message is required" }, { status: 400 });

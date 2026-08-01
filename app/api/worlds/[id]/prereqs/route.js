@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
 const prereqs = require("@/lib/prereqs");
 const jobs = require("@/lib/jobs");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -9,16 +10,20 @@ export const runtime = "nodejs";
 // GET  → current runtime status (Windows): { vcredist, directx, ok, hasBundled }.
 // POST → kick off an elevated install job (downloads MS VC++ + runs the bundled UE
 //        prereq installer), surfaced in the Downloads tray. Returns { jobId }.
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id });
+  if (denied) return denied;
   const status = prereqs.check();
   return NextResponse.json({ ok: true, ...status, hasBundled: !!prereqs.bundledPrereqPath(w.install_dir), vcRedistUrl: prereqs.VC_REDIST_URL });
 }
 
-export async function POST(_req, { params }) {
+export async function POST(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "overview", action: "prereqs.install", mutating: true });
+  if (denied) return denied;
   if (process.platform !== "win32") {
     return NextResponse.json({ ok: false, error: "Prerequisites are only needed on Windows." }, { status: 400 });
   }

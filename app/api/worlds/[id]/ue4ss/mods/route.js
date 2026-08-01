@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
 const ue4ss = require("@/lib/ue4ss");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,6 +13,8 @@ export const runtime = "nodejs";
 export async function POST(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "mods", action: "ue4ss.mods", mutating: true });
+  if (denied) return denied;
   const body = await req.json().catch(() => ({}));
   try {
     if (body.action === "toggle") {

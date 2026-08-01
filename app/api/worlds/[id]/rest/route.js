@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 const rest = require("@/lib/restclient");
 const dbm = require("@/lib/db");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -9,6 +10,8 @@ export async function POST(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
   const { command, message, userid, waittime } = await req.json();
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: ra.tabForRestCommand(command), action: `rest.${command}`, mutating: true });
+  if (denied) return denied;
   try {
     let out;
     switch (command) {

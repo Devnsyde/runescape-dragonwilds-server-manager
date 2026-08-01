@@ -9,14 +9,31 @@ const { conflictsInRegistry } = require("@/lib/ports");
 const guard = require("@/lib/installdir");
 const trash = require("@/lib/trash");
 const { boot } = require("@/lib/bootstrap");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export async function GET(_req, { params }) {
+// The world PATCH is multi-purpose (Admin, Discord and Schedule panels all use it), so the
+// governing remote tab depends on which fields the patch touches. Default to the most
+// restrictive (admin) when nothing more specific matches.
+const DISCORD_FIELDS = ["discord_webhook", "notify_events", "discord_relay_chat", "discord_webhooks", "notify_templates"];
+const SCHEDULE_FIELDS = ["warn_enabled", "warn_lead_minutes", "warn_interval_minutes", "warn_message"];
+function tabForWorldPatch(patch) {
+  const keys = Object.keys(patch || {});
+  if (keys.length && keys.every((k) => DISCORD_FIELDS.includes(k))) return "discord";
+  if (keys.length && keys.every((k) => SCHEDULE_FIELDS.includes(k))) return "schedule";
+  return "admin";
+}
+
+export async function GET(req, { params }) {
   boot(); // make sure the background presence poller (join/leave) is running
   let w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  // Base world read: any in-scope session may load it (needed to render anything); the
+  // per-tab panels enforce their own tabs via their own routes.
+  const denied = ra.guardResponse(req, { worldId: params.id });
+  if (denied) return denied;
   if (!w.build_id) {
     try {
       const bid = steam.readInstalledBuildId(w.install_dir);
@@ -55,6 +72,8 @@ export async function PATCH(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
   const patch = await req.json();
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: tabForWorldPatch(patch), action: "world.update", mutating: true });
+  if (denied) return denied;
 
   // Changing the install folder is special: validate it points at a real Palworld
   // server, refuse while running, and rebase this world's build id onto the new path.
@@ -162,6 +181,8 @@ export async function PATCH(req, { params }) {
 export async function DELETE(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "admin", action: "world.delete", mutating: true });
+  if (denied) return denied;
   const deleteFiles = new URL(req.url).searchParams.get("files") === "1";
 
   // Check before stopping anything: this folder is about to be rm -rf'd, and a world

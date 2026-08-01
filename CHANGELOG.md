@@ -3,9 +3,21 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.7.0] — 2026-08-01
 
 ### Added
+- **Remote Access — hand out scoped control with a code.** A new **Remote Access** sidebar page
+  lets you open the manager to other people from their own device. Turn it on, optionally allow
+  **same-network (LAN)** access (which rebinds the local server to your network and restarts it),
+  and share the shown `http://…/remote` URL — tunnels like playit.gg / Cloudflare Tunnel work too,
+  and cross-origin requests are handled. Create **5-digit codes**, each scoped to either the
+  **whole app (all worlds)** or a **single world**, with a per-tab allow-list (everything except
+  the **Admin** tab by default). Visitors open `/remote`, enter their code, and get exactly the
+  tabs you granted — with their own **language and theme** that never touch your settings. You can
+  **edit a code's access live**, see **active/inactive** devices, read a **per-code activity log**
+  of everything done, and **disable or delete** a code to cut access instantly. The desktop app
+  stays the trusted admin via a per-launch token (never by IP, so a tunnel can't impersonate it),
+  and every world action is enforced server-side, so a code can never reach beyond its scope.
 - **Login streaks synced with the DailyLoginRewards mod.** The Players tab can now show the
   streak numbers straight from the DailyLoginRewards mod's own `players.json`, so the GUI and
   the mod agree instead of counting streaks differently (the mod uses a rolling 24/48-hour

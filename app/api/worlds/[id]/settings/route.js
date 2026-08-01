@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
 const ini = require("@/lib/ini");
 const { GROUPS } = require("@/lib/palfields");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -16,9 +17,11 @@ const MANAGED = new Set([
   "AdminPassword", "ServerPassword",
 ]);
 
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "settings" });
+  if (denied) return denied;
   const s = ini.readSettings(w.install_dir, w.platform);
   // Report which keys are actually present in the ini so the editor can show
   // "set" vs "default (not written)" and only save real changes.
@@ -32,6 +35,8 @@ export async function GET(_req, { params }) {
 export async function POST(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "settings", action: "settings.save", mutating: true });
+  if (denied) return denied;
 
   // The editor sends ONLY the keys the user actually changed (`changed`), plus
   // the full set it's aware of is irrelevant — we merge changes onto the CURRENT

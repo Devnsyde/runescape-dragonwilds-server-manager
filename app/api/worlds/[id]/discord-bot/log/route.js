@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
 const cfgLib = require("@/lib/discord-bot-config");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -16,6 +17,8 @@ export const runtime = "nodejs";
 export async function GET(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "discordbot" });
+  if (denied) return denied;
 
   const q = new URL(req.url).searchParams;
   const action = q.get("action") || "";

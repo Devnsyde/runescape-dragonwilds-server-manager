@@ -3,13 +3,16 @@ const dbm = require("@/lib/db");
 const sup = require("@/lib/supervisor");
 const ue4ss = require("@/lib/ue4ss");
 const palnames = require("@/lib/palnames");
+const ra = require("@/lib/remoteauth");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 // GET: recent deaths + whether the PSMDeathRelay mod / UE4SS are installed for this world.
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "deaths" });
+  if (denied) return denied;
   // Ensure the death tailer is running for this world if it's up — covers servers the app
   // adopted (never spawned) so opening this tab alone is enough to start catching deaths.
   try {
@@ -42,9 +45,11 @@ export async function GET(_req, { params }) {
 }
 
 // POST: install the bundled PSMDeathRelay UE4SS mod into this world's server.
-export async function POST(_req, { params }) {
+export async function POST(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "deaths", action: "deaths.installMod", mutating: true });
+  if (denied) return denied;
   if (sup.isRunning(params.id)) return NextResponse.json({ ok: false, error: "Stop the server before changing mods." }, { status: 409 });
   try {
     const res = sup.installDeathMod(w.install_dir);
@@ -56,9 +61,11 @@ export async function POST(_req, { params }) {
 }
 
 // DELETE: remove the death relay mod (escape hatch if a Palworld update breaks it).
-export async function DELETE(_req, { params }) {
+export async function DELETE(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "deaths", action: "deaths.removeMod", mutating: true });
+  if (denied) return denied;
   if (sup.isRunning(params.id)) return NextResponse.json({ ok: false, error: "Stop the server before changing mods." }, { status: 409 });
   try {
     const res = sup.uninstallDeathMod(w.install_dir);

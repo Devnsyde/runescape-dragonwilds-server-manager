@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 const dbm = require("@/lib/db");
 const rewards = require("@/lib/loginrewards");
+const ra = require("@/lib/remoteauth");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -27,15 +28,19 @@ function state(world) {
   };
 }
 
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "players" });
+  if (denied) return denied;
   return NextResponse.json({ ok: true, ...state(w) });
 }
 
 export async function PUT(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "players", action: "loginRewards.setPath", mutating: true });
+  if (denied) return denied;
   const b = await req.json().catch(() => ({}));
   const p = typeof b.path === "string" ? b.path.trim() : "";
   // A non-empty path must actually parse, so a typo is caught here rather than silently
@@ -51,6 +56,8 @@ export async function PUT(req, { params }) {
 export async function POST(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  const denied = ra.guardResponse(req, { worldId: params.id, tab: "players", action: "loginRewards.upload", mutating: true });
+  if (denied) return denied;
   const b = await req.json().catch(() => ({}));
   if (typeof b.content !== "string" || !b.content.trim())
     return NextResponse.json({ ok: false, error: "No file contents were provided." }, { status: 400 });
