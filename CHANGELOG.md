@@ -3,6 +3,19 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Login streaks synced with the DailyLoginRewards mod.** The Players tab can now show the
+  streak numbers straight from the DailyLoginRewards mod's own `players.json`, so the GUI and
+  the mod agree instead of counting streaks differently (the mod uses a rolling 24/48-hour
+  window from each player's last login; the app's own leaderboard uses calendar days). The app
+  **auto-detects** the file under the world's UE4SS `Mods` folder and re-reads it live each time
+  the tab opens. If the server lives on another machine, open **Players → Configure** to point
+  it at a file path or **upload the `players.json`** directly. Matching players get a 🎁 login-
+  streak column shown next to the app's own streak, and players the mod tracks but the app hasn't
+  seen yet are listed too. No setup is needed when the mod is installed locally.
+
 ## [2.6.1] — 2026-07-26
 
 ### Fixed

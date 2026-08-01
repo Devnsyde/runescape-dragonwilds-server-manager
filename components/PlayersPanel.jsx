@@ -22,12 +22,47 @@ export default function PlayersPanel({ worldId, players, onChange }) {
   const { t } = useTranslation();
   const [busy, setBusy] = useState(null);
   const [stats, setStats] = useState(null);
+  const [modSync, setModSync] = useState(null);
+  const [showCfg, setShowCfg] = useState(false);
+  const [pathInput, setPathInput] = useState("");
+  const [savingCfg, setSavingCfg] = useState(false);
   const list = players?.players || [];
 
   const loadStats = useCallback(async () => {
-    try { const r = await api(`/api/worlds/${worldId}/player-stats`); setStats(r.stats || []); }
+    try {
+      const r = await api(`/api/worlds/${worldId}/player-stats`);
+      setStats(r.stats || []);
+      setModSync(r.modSync || null);
+    }
     catch { /* leave whatever we had; the section just won't update this tick */ }
   }, [worldId]);
+
+  // Point the mod-streak sync at a specific players.json (or clear it back to auto-detect).
+  const saveModPath = async (path) => {
+    setSavingCfg(true);
+    try {
+      const r = await api(`/api/worlds/${worldId}/login-rewards`, { method: "PUT", body: { path } });
+      setModSync({ found: r.found, path: r.resolved, source: r.source, error: r.error, count: r.count });
+      if (r.error) toast(r.error, "error");
+      else toast(t("players.modSaved"), "success");
+      loadStats();
+    } catch (e) { toast(e.message, "error"); }
+    finally { setSavingCfg(false); }
+  };
+
+  // Upload fallback: read a players.json off the operator's machine and park it in the app.
+  const uploadModFile = async (file) => {
+    if (!file) return;
+    setSavingCfg(true);
+    try {
+      const content = await file.text();
+      const r = await api(`/api/worlds/${worldId}/login-rewards`, { method: "POST", body: { content } });
+      setModSync({ found: r.found, path: r.resolved, source: r.source, error: r.error, count: r.count });
+      toast(t("players.modUploaded", { count: r.count }), "success");
+      loadStats();
+    } catch (e) { toast(e.message, "error"); }
+    finally { setSavingCfg(false); }
+  };
 
   // The leaderboard reads from the DB, so it refreshes on its own cadence (independent of
   // the live-player poll) and right after a kick/ban changes who's around.
@@ -61,6 +96,10 @@ export default function PlayersPanel({ worldId, players, onChange }) {
     onlineIds.has(String(s.id)) || onlineNames.has(String(s.name || "").toLowerCase());
 
   const headers = [t("players.name"), t("players.level"), t("players.ping"), t("players.location"), ""];
+
+  // Show the DailyLoginRewards column only when the mod is actually in play — either its
+  // file was found, or some row carries a mod streak — so the column is never dead noise.
+  const hasMod = !!(modSync && (modSync.found || (stats || []).some((s) => s.modStreak != null)));
 
   return (
     <div style={{ display: "grid", gap: "1.6rem" }}>
@@ -111,6 +150,40 @@ export default function PlayersPanel({ worldId, players, onChange }) {
       <div>
         <h3 className="heading" style={{ fontSize: "1rem", margin: "0 0 0.2rem" }}>{t("players.activityTitle")}</h3>
         <p className="subtle" style={{ fontWeight: 600, fontSize: "0.76rem", margin: "0 0 0.7rem" }}>{t("players.activityDesc")}</p>
+
+        {/* DailyLoginRewards sync status + config. Green when we found the mod's players.json,
+            subtle otherwise, with a Configure toggle for a manual path or an upload. */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "0 0 0.8rem" }}>
+          <span className="subtle" style={{ fontWeight: 800, fontSize: "0.74rem" }}>
+            {modSync?.found
+              ? <span style={{ color: "var(--green-bright)" }}>🎁 {t("players.modSyncedCount", { count: modSync.count })}</span>
+              : modSync?.error
+                ? <span style={{ color: "var(--yellow)" }}>🎁 {t("players.modFileError")}</span>
+                : <span>🎁 {t("players.modNotDetected")}</span>}
+          </span>
+          <button className="btn btn-ghost" style={{ padding: "0.25rem 0.55rem", fontSize: "0.72rem" }}
+            onClick={() => { setShowCfg((v) => !v); setPathInput(modSync?.override || modSync?.path || ""); }}>
+            {t("players.modConfigure")}
+          </button>
+        </div>
+        {showCfg && (
+          <div style={{ display: "grid", gap: 8, padding: "0.7rem 0.8rem", margin: "0 0 0.9rem", border: "1.5px solid var(--line)", borderRadius: 10, background: "var(--card-2)" }}>
+            <p className="subtle" style={{ fontWeight: 700, fontSize: "0.72rem", margin: 0 }}>{t("players.modConfigHelp")}</p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <input className="input" style={{ flex: "1 1 320px", fontSize: "0.78rem" }} placeholder={t("players.modPathPlaceholder")}
+                value={pathInput} onChange={(e) => setPathInput(e.target.value)} />
+              <button className="btn btn-primary" style={{ padding: "0.35rem 0.7rem", fontSize: "0.76rem" }} disabled={savingCfg} onClick={() => saveModPath(pathInput)}>{t("common.save")}</button>
+              <button className="btn btn-ghost" style={{ padding: "0.35rem 0.7rem", fontSize: "0.76rem" }} disabled={savingCfg} onClick={() => { setPathInput(""); saveModPath(""); }}>{t("players.modUseAuto")}</button>
+            </div>
+            <label className="btn btn-ghost" style={{ padding: "0.35rem 0.7rem", fontSize: "0.76rem", alignSelf: "start", cursor: "pointer" }}>
+              {t("players.modUpload")}
+              <input type="file" accept=".json,application/json" style={{ display: "none" }} disabled={savingCfg}
+                onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; uploadModFile(f); }} />
+            </label>
+            {modSync?.resolved && <p className="subtle" style={{ fontWeight: 600, fontSize: "0.68rem", margin: 0, wordBreak: "break-all" }}>{t("players.modPathInUse", { path: modSync.resolved })}</p>}
+          </div>
+        )}
+
         {stats && stats.length === 0 ? (
           <p className="subtle" style={{ fontWeight: 700, padding: "0.25rem 0" }}>{t("players.noHistory")}</p>
         ) : !stats ? (
@@ -120,8 +193,10 @@ export default function PlayersPanel({ worldId, players, onChange }) {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.84rem" }}>
               <thead>
                 <tr style={{ textAlign: "left" }}>
-                  {["#", t("players.name"), t("players.lastSeen"), t("players.currentStreak"), t("players.longestStreak"), t("players.totalLogins")].map((h, i) => (
-                    <th key={i} className="subtle" style={{ padding: "0.4rem 0.6rem", fontFamily: "var(--font-display)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.04em", textAlign: i >= 3 ? "center" : "left" }}>{h}</th>
+                  {["#", t("players.name"), t("players.lastSeen"),
+                    ...(hasMod ? [t("players.modStreak")] : []),
+                    t("players.currentStreak"), t("players.longestStreak"), t("players.totalLogins")].map((h, i) => (
+                    <th key={i} className="subtle" title={hasMod && h === t("players.modStreak") ? t("players.modStreakTip") : undefined} style={{ padding: "0.4rem 0.6rem", fontFamily: "var(--font-display)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.04em", textAlign: i >= 3 ? "center" : "left" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -140,6 +215,13 @@ export default function PlayersPanel({ worldId, players, onChange }) {
                       <td style={{ padding: "0.55rem 0.6rem", fontWeight: 700 }} className="subtle">
                         {online ? t("players.online") : timeAgo(s.lastSeen, t)}
                       </td>
+                      {hasMod && (
+                        <td style={{ padding: "0.55rem 0.6rem", fontWeight: 800, textAlign: "center" }}>
+                          {s.modStreak != null
+                            ? <span title={s.lastReward ? t("players.modLastReward", { time: timeAgo(s.lastReward, t) }) : t("players.modSyncedTip")}>🎁 {s.modStreak}</span>
+                            : <span className="subtle">—</span>}
+                        </td>
+                      )}
                       <td style={{ padding: "0.55rem 0.6rem", fontWeight: 800, textAlign: "center" }}>
                         {s.currentStreak > 0
                           ? <span title={t("players.streakDays", { count: s.currentStreak })}>🔥 {s.currentStreak}</span>
