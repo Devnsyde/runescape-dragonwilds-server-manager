@@ -27,6 +27,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   it at a file path or **upload the `players.json`** directly. Matching players get a 🎁 login-
   streak column shown next to the app's own streak, and players the mod tracks but the app hasn't
   seen yet are listed too. No setup is needed when the mod is installed locally.
+- **Skip the next scheduled run.** Each schedule (restart, backup, update, message…) now has a
+  **Skip next** toggle that cancels just its next occurrence and then resumes on its normal
+  cadence — so you can hold off one restart without disabling and re-arming the whole schedule.
+
+### Fixed
+- **Discord webhook now fires for bot-driven start/stop/restart.** Starting, stopping or
+  restarting a world through the Discord bot posted nothing to the configured webhook channel;
+  those actions now send their notification like the in-app ones already did.
 
 ## [2.6.1] — 2026-07-26
 
