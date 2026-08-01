@@ -66,6 +66,18 @@ export async function POST(req, { params }) {
   return NextResponse.json({ ok: true, schedule: s });
 }
 
+// Toggle a schedule's one-shot "skip the next run" flag. Only mutates schedules that
+// belong to this world, so a stray id can't touch another world's rules.
+export async function PATCH(req, { params }) {
+  const b = await req.json();
+  const sid = String(b.id ?? new URL(req.url).searchParams.get("sid") ?? "");
+  if (!sid) return NextResponse.json({ ok: false, error: "A schedule id is required." }, { status: 400 });
+  const owned = dbm.listSchedules(params.id).some((s) => s.id === sid);
+  if (!owned) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+  if (typeof b.skipNext === "boolean") dbm.setScheduleSkipNext(sid, b.skipNext);
+  return NextResponse.json({ ok: true });
+}
+
 export async function DELETE(req, { params }) {
   const id = new URL(req.url).searchParams.get("sid");
   if (id) dbm.deleteSchedule(id);

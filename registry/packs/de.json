@@ -5,7 +5,9 @@
     "nativeName": "Deutsch",
     "dir": "ltr",
     "schema": 1,
-    "authors": ["Palworld Server Manager"]
+    "authors": [
+      "Palworld Server Manager"
+    ]
   },
   "strings": {
     "nav.worlds": "Welten",
@@ -20,7 +22,6 @@
     "action.toggleTheme": "Design wechseln",
     "action.expand": "Aufklappen",
     "action.collapse": "Zuklappen",
-
     "common.loading": "Laden…",
     "common.checking": "Prüfen…",
     "common.starting": "Starten…",
@@ -33,7 +34,6 @@
     "common.day": "Tag",
     "common.scope": "Bereich",
     "common.current": "aktuell",
-
     "settings.language": "Sprache",
     "settings.languageHelp": "Ändert alle übersetzten Beschriftungen in der App. Du kannst jederzeit wechseln.",
     "settings.languagePartial": "Einige Texte werden möglicherweise noch auf Englisch angezeigt, bis dieses Sprachpaket vollständig übersetzt ist.",
@@ -92,7 +92,6 @@
     "wizard.subtitle": "Wähle deine Sprache, um loszulegen.",
     "wizard.help": "Du kannst dies später in den Einstellungen ändern.",
     "wizard.continue": "Loslegen",
-
     "worlds.title": "Deine Welten",
     "worlds.summary_one": "{{count}} Welt · {{running}} läuft · {{players}} online",
     "worlds.summary_other": "{{count}} Welten · {{running}} laufen · {{players}} online",
@@ -113,7 +112,6 @@
     "toast.worldStarted": "Welt gestartet",
     "toast.worldStopped": "Welt gestoppt",
     "toast.worldRestarted": "Welt neugestartet",
-
     "usage.title": "Auslastung",
     "usage.subtitle": "Live-CPU & Speicher für laufende Welten · {{cores}} Kerne · Abtastung alle {{sec}}s",
     "usage.allRunning": "Alle laufenden Welten",
@@ -139,14 +137,12 @@
     "usage.collecting": "Sammle Messwerte…",
     "usage.emptyTitle": "Keine Welten laufen",
     "usage.emptyBody": "Starte eine Welt, um hier Live-CPU- und Speicherauslastung zu sehen. Metriken werden über den gesamten Prozessbaum jedes Servers erfasst.",
-
     "downloads.title": "Downloads & Updates",
     "downloads.clearHistory": "Verlauf löschen",
     "downloads.inProgress": "In Bearbeitung",
     "downloads.history": "Verlauf",
     "downloads.noActive": "Keine aktiven Downloads oder Updates.",
     "downloads.historyEmpty": "Abgeschlossene Installationen und Updates werden hier angezeigt.",
-
     "common.dismiss": "Schließen",
     "status.running": "Läuft",
     "status.stopped": "Gestoppt",
@@ -173,14 +169,12 @@
     "job.phase.backup": "Sicherung erstellen",
     "job.phase.settings": "Einstellungen schreiben",
     "job.phase.finalizing": "Abschließen",
-
     "common.cancel": "Abbrechen",
     "common.copy": "Kopieren",
     "common.copied": "Kopiert!",
     "common.deleting": "Wird gelöscht…",
     "common.update": "Aktualisieren",
     "common.updating": "Wird aktualisiert…",
-
     "world.allWorlds": "Alle Welten",
     "world.customize": "Anpassen",
     "world.updateStarted": "Update gestartet — Fortschritt im Download-Bereich verfolgen",
@@ -323,7 +317,6 @@
     "world.deleteEverything": "Alles löschen",
     "world.updatePendingTip": "Installierter Build {{from}} · neuester ist {{to}}",
     "world.updateUnknownTip": "Steam konnte nicht erreicht werden, um Builds zu vergleichen, daher ist dies möglicherweise bereits aktuell.",
-
     "map.title": "Live-Spielerkarte",
     "map.online": "{{count}} online",
     "map.live": "Live",
@@ -365,11 +358,9 @@
     "mapCal.restHint": "Die REST-API des Servers muss aktiviert sein. Der Standard-REST-Port ist 8212.",
     "mapCal.noPlayers": "Verbunden, aber keine Spieler online. Bringe einen Spieler online, um Referenzpunkte zu setzen.",
     "mapCal.howto": "Klicke auf Kalibrieren, wähle einen Spieler, zoome dann hinein und klicke auf seine genaue Position. Mache 3+ weit verteilte Stellen (z. B. Start, Wüste, Feybreak), dann Speichern.",
-
     "common.yes": "ja",
     "common.none": "keine",
     "common.browse": "Durchsuchen",
-
     "create.addWorld": "Welt hinzufügen",
     "create.addIntro": "Installiere einen neuen dedizierten Palworld-Server oder registriere einen, den du bereits auf der Festplatte hast.",
     "create.installNew": "Neuen Server installieren",
@@ -412,11 +403,9 @@
     "create.addThisServer": "Diesen Server hinzufügen",
     "create.adding": "Wird hinzugefügt…",
     "create.registered": "Vorhandener Server registriert",
-
     "common.send": "Senden",
     "common.saving": "Speichern…",
     "common.change": "Ändern",
-
     "admin.broadcastTitle": "Broadcast an Spieler",
     "admin.announcePlaceholder": "Ankündigungsnachricht…",
     "admin.broadcastHint": "Starte die Welt, um zu senden.",
@@ -469,18 +458,15 @@
     "admin.wineLaunchFlags": "Wine-Startflags",
     "admin.wineLaunchFlagsPlaceholder": "z. B. --version",
     "admin.wineLaunchFlagsHint": "Werden dem wine-Befehl selbst übergeben, vor der Server-Programmdatei — nicht dasselbe wie die Startargumente oben, die an den Server gehen.",
-
     "common.save": "Speichern",
     "common.edit": "Bearbeiten",
     "common.restore": "Wiederherstellen",
-
     "logs.linesBuffered_one": "{{count}} Zeile gepuffert",
     "logs.linesBuffered_other": "{{count}} Zeilen gepuffert",
     "logs.clear": "Löschen",
     "logs.live": "Live",
     "logs.paused": "Pausiert",
     "logs.waiting": "Warte auf Ausgabe. Logs erscheinen hier, wenn die Welt läuft.",
-
     "backups.backupNow": "Jetzt sichern",
     "backups.working": "Arbeitet…",
     "backups.importSave": "Spielstand importieren (.zip)",
@@ -495,7 +481,6 @@
     "backups.importPickerDesktop": "Spielstand-Import über Dateiauswahl ist in der Desktop-App verfügbar.",
     "backups.imported_one": "Spielstand importiert · {{count}} Spieler",
     "backups.imported_other": "Spielstand importiert · {{count}} Spieler",
-
     "broadcast.stopBeforeMod": "Stoppe die Welt, bevor du den Broadcast-Mod änderst.",
     "broadcast.modInstalledRestart": "Bildschirm-Broadcast-Mod installiert. Starte die Welt neu, um ihn zu laden.",
     "broadcast.modCopiedNoUe4ss": "Broadcast-Mod kopiert, aber UE4SS wurde nicht erkannt — installiere zuerst UE4SS.",
@@ -542,7 +527,6 @@
     "broadcast.firing": "wird ausgelöst…",
     "broadcast.inTime": "in {{time}}",
     "broadcast.inDaysTime": "in {{days}}T {{time}}",
-
     "info.title": "Info & Anleitungen",
     "info.subtitle": "Optionale Hilfe, um das Beste aus deinem Server herauszuholen.",
     "info.guideInternetTitle": "So hostest du deinen Server im Internet",
@@ -566,11 +550,9 @@
     "info.step6LocalPort": "<b>Lokaler Port:</b> der Spielport deiner Welt (z. B. <code>8211</code> — auf der Weltseite angezeigt)",
     "info.step7Title": "Deine öffentliche Adresse erhalten",
     "info.step7": "playit.gg gibt dir eine <b>öffentliche IP und Port</b>. Teile sie mit Freunden — in Palworld verwenden sie <b>Multiplayer beitreten → Per IP verbinden</b> und fügen sie ein. Fertig!",
-
     "common.on": "An",
     "common.off": "Aus",
     "common.reset": "Zurücksetzen",
-
     "settings.title": "Einstellungen",
     "settings.saved": "Gespeichert",
     "settings.appearance": "Erscheinungsbild",
@@ -610,10 +592,8 @@
     "settings.devCalibrateTitle": "Spielerkarte kalibrieren",
     "settings.devCalibrateDesc": "Verbinde dich mit einer Palworld-REST-API, setze Referenzpunkte und backe die Kartenkalibrierung in die App ein, damit jede Installation genaue Punkte bekommt.",
     "settings.devCalibrateBtn": "Karte kalibrieren",
-
     "common.pickerDesktop": "Dateiauswahl ist in der Desktop-App verfügbar.",
     "common.folderPickerDesktop": "Ordnerauswahl ist in der Desktop-App verfügbar.",
-
     "players.none": "Derzeit keine Spieler online.",
     "players.name": "Name",
     "players.level": "Stufe",
@@ -623,7 +603,6 @@
     "players.ban": "Bannen",
     "players.kicked": "{{name}} gekickt",
     "players.banned": "{{name}} gebannt",
-
     "chat.stopBeforeChange": "Stoppe die Welt, bevor du den Chat-Mod änderst.",
     "chat.installedRestart": "Chat-Mod installiert. Starte die Welt neu, um die Chat-Erfassung zu starten.",
     "chat.copiedNoUe4ss": "Chat-Mod kopiert, aber UE4SS wurde nicht erkannt — installiere zuerst UE4SS.",
@@ -654,7 +633,6 @@
     "chat.startToBroadcast": "Starte die Welt, um zu senden",
     "chat.announce": "Ankündigen",
     "chat.footer": "Palworld hat keinen REST-Endpunkt zum Senden als Spieler, daher gehen Admin-Nachrichten als Serverankündigung raus (Broadcast an alle).",
-
     "schedule.added": "Zeitplan hinzugefügt",
     "schedule.job": "Aufgabe",
     "schedule.jobType.restart": "Neustart",
@@ -692,6 +670,10 @@
     "schedule.empty": "Keine geplanten Aufgaben. Füge automatische Neustarts, Sicherungen, Updates oder zeitgesteuerte Nachrichten für ein Wartungsfenster hinzu.",
     "schedule.lastRun": "Letzter Lauf: {{time}}",
     "schedule.never": "nie",
+    "schedule.skipNext": "Nächsten Lauf überspringen",
+    "schedule.undoSkip": "Überspringen rückgängig",
+    "schedule.willSkipNext": "nächster Lauf wird übersprungen",
+    "schedule.skipNextTip": "Nur die nächste Ausführung überspringen — der Zeitplan bleibt aktiv und läuft danach normal weiter.",
     "schedule.everyHours": "alle {{hours}}h",
     "schedule.everyMinutes": "alle {{minutes}} Min.",
     "schedule.dailyAt": "täglich um {{time}}",
@@ -711,7 +693,6 @@
     "warn.save": "Warnungen speichern",
     "warn.saved": "Warnungseinstellungen gespeichert",
     "warn.defaultMessage": "Der Server wird in {minutes} Minute(n) neugestartet. Bitte begebt euch an einen sicheren Ort.",
-
     "mods.loading": "Mods werden geladen…",
     "mods.toggledOn": "Mods aktiviert — Neustart zum Übernehmen",
     "mods.toggledOff": "Mods deaktiviert — Neustart zum Übernehmen",
@@ -781,7 +762,6 @@
     "mods.forceLua": "Dieser enthält <b>Lua-Skripte</b>, die PSM selbst in UE4SS kopiert — das erzwungene Aktivieren sollte also funktionieren. Starte die Welt neu zum Übernehmen.",
     "mods.forcePakOnly": "Dieser ist <b>nur Pak</b>, und nur Palworlds eigener Bereitstellungsschritt kann diese installieren — das Erzwingen bringt möglicherweise nichts. Aktiviere ihn, starte neu und prüfe die Konsole.",
     "mods.forceConfirm": "Trotzdem aktivieren",
-
     "discord.testSent": "Testnachricht gesendet — prüfe deinen Discord-Kanal",
     "discord.saved": "Discord-Einstellungen gespeichert",
     "discord.notificationsTitle": "Discord-Benachrichtigungen",
@@ -826,7 +806,6 @@
     "discord.discard": "Verwerfen",
     "discord.saving": "Speichern…",
     "discord.saveChanges": "Änderungen speichern",
-
     "ue4ss.stopBeforeInstall": "Stoppe die Welt vor der UE4SS-Installation.",
     "ue4ss.installedRestart": "UE4SS installiert — starte die Welt neu, um es zu laden.",
     "ue4ss.installedNotDetected": "Installation ausgeführt, aber UE4SS wurde nicht erkannt.",
@@ -858,7 +837,6 @@
     "ue4ss.enabledBtn": "Aktiviert",
     "ue4ss.disabledBtn": "Deaktiviert",
     "ue4ss.restartNote": "Mods werden beim Serverstart geladen — <b>starte die Welt neu</b> nach jeder Änderung.",
-
     "palschema.loading": "PalSchema wird geladen…",
     "palschema.title": "PalSchema-Mods",
     "palschema.installed": "Installiert",
@@ -890,7 +868,6 @@
     "palschema.confirmRemove": "PalSchema-Mod \"{{name}}\" entfernen? Sein Ordner wird in den Papierkorb verschoben.",
     "palschema.removed": "Mod entfernt (Neustart zum Übernehmen)",
     "palschema.restartNote": "PalSchema-Mods werden beim Serverstart geladen — <b>starte die Welt neu</b> nach jeder Änderung.",
-
     "editor.savedChanges_one": "{{count}} Änderung gespeichert — Neustart zum Übernehmen.",
     "editor.savedChanges_other": "{{count}} Änderungen gespeichert — Neustart zum Übernehmen.",
     "editor.noChanges": "Keine Änderungen zum Speichern",
@@ -923,7 +900,6 @@
     "editor.iniEditorTitle": "Die rohe PalWorldSettings.ini mit Versionsverlauf bearbeiten",
     "editor.on": "An",
     "editor.off": "Aus",
-
     "ini.discardConfirm": "Du hast ungespeicherte Änderungen an der ini. Verwerfen?",
     "ini.savedRestart": "Gespeichert — starte die Welt neu zum Übernehmen",
     "ini.saved": "Gespeichert",
@@ -949,7 +925,6 @@
     "ini.unsavedTitle": "Ungespeicherte Änderungen",
     "ini.keepEditing": "Weiter bearbeiten",
     "ini.discardChanges": "Änderungen verwerfen",
-
     "customize.readError": "Bild konnte nicht gelesen werden",
     "customize.saved": "Welt angepasst",
     "customize.worldName": "Weltname",

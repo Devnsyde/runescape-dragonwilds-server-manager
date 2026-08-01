@@ -73,6 +73,19 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
     } catch (e) { toast(e.message, "error"); }
   };
 
+  // Arm/disarm "skip the next run" for one schedule. The schedule stays on; only its
+  // next occurrence is cancelled.
+  const setSkipNext = async (sid, on) => {
+    try {
+      await api(`/api/worlds/${worldId}/schedules`, { method: "PATCH", body: { id: sid, skipNext: on } });
+      onChange();
+    } catch (e) { toast(e.message, "error"); }
+  };
+
+  // "Skip next" only makes sense for the time-driven occurrences — not the
+  // presence-driven join greeting or idle auto-stop.
+  const canSkip = (s) => s.mode !== "on_join" && s.job_type !== "idle_stop";
+
   const describeWhen = (s) => {
     if (s.job_type === "idle_stop") {
       return s.mode === "minutes"
@@ -189,8 +202,21 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
               <Icon name="clock" size={16} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 800, fontSize: "0.84rem" }}>{describe(s)}</div>
-                <div className="subtle" style={{ fontSize: "0.72rem", fontWeight: 700 }}>{t("schedule.lastRun", { time: s.last_run ? fmtTime(s.last_run) : t("schedule.never") })}</div>
+                <div className="subtle" style={{ fontSize: "0.72rem", fontWeight: 700 }}>
+                  {t("schedule.lastRun", { time: s.last_run ? fmtTime(s.last_run) : t("schedule.never") })}
+                  {s.skip_next ? <span style={{ color: "var(--yellow)" }}> · {t("schedule.willSkipNext")}</span> : null}
+                </div>
               </div>
+              {canSkip(s) && (
+                <button
+                  className={`btn ${s.skip_next ? "btn-primary" : "btn-ghost"}`}
+                  style={{ padding: "0.3rem 0.6rem", fontSize: "0.72rem" }}
+                  title={t("schedule.skipNextTip")}
+                  onClick={() => setSkipNext(s.id, !s.skip_next)}
+                >
+                  {s.skip_next ? t("schedule.undoSkip") : t("schedule.skipNext")}
+                </button>
+              )}
               <button className="btn btn-danger" style={{ padding: "0.3rem 0.6rem" }} onClick={() => remove(s.id)}><Icon name="trash" size={14} /></button>
             </div>
           ))}

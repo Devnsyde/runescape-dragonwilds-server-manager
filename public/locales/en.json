@@ -5,7 +5,9 @@
     "nativeName": "English",
     "dir": "ltr",
     "schema": 1,
-    "authors": ["Palworld Server Manager"]
+    "authors": [
+      "Palworld Server Manager"
+    ]
   },
   "strings": {
     "nav.worlds": "Worlds",
@@ -20,7 +22,6 @@
     "action.toggleTheme": "Toggle theme",
     "action.expand": "Expand",
     "action.collapse": "Collapse",
-
     "common.loading": "Loading…",
     "common.checking": "Checking…",
     "common.starting": "Starting…",
@@ -33,7 +34,6 @@
     "common.day": "Day",
     "common.scope": "Scope",
     "common.current": "current",
-
     "settings.language": "Language",
     "settings.languageHelp": "Changes every translated label in the app. You can switch anytime.",
     "settings.languagePartial": "Some text may still appear in English until this language pack is fully translated.",
@@ -92,7 +92,6 @@
     "wizard.subtitle": "Choose your language to get started.",
     "wizard.help": "You can change this later in Settings.",
     "wizard.continue": "Get started",
-
     "worlds.title": "Your worlds",
     "worlds.summary_one": "{{count}} world · {{running}} running · {{players}} online",
     "worlds.summary_other": "{{count}} worlds · {{running}} running · {{players}} online",
@@ -113,7 +112,6 @@
     "toast.worldStarted": "World started",
     "toast.worldStopped": "World stopped",
     "toast.worldRestarted": "World restarted",
-
     "usage.title": "Usage",
     "usage.subtitle": "Live CPU & memory for running worlds · {{cores}} cores · sampled every {{sec}}s",
     "usage.allRunning": "All running worlds",
@@ -139,14 +137,12 @@
     "usage.collecting": "Collecting samples…",
     "usage.emptyTitle": "No worlds running",
     "usage.emptyBody": "Start a world to see live CPU and memory usage graphed here. Metrics are sampled across each server's full process tree.",
-
     "downloads.title": "Downloads & updates",
     "downloads.clearHistory": "Clear history",
     "downloads.inProgress": "In progress",
     "downloads.history": "History",
     "downloads.noActive": "No active downloads or updates.",
     "downloads.historyEmpty": "Completed installs and updates will appear here.",
-
     "common.dismiss": "Dismiss",
     "status.running": "Running",
     "status.stopped": "Stopped",
@@ -174,14 +170,12 @@
     "job.phase.backup": "Backing up",
     "job.phase.settings": "Writing settings",
     "job.phase.finalizing": "Finishing up",
-
     "common.cancel": "Cancel",
     "common.copy": "Copy",
     "common.copied": "Copied!",
     "common.deleting": "Deleting…",
     "common.update": "Update",
     "common.updating": "Updating…",
-
     "world.allWorlds": "All worlds",
     "world.customize": "Customize",
     "world.updateStarted": "Update started — track progress in the downloads tray",
@@ -325,7 +319,6 @@
     "world.deleteEverything": "Delete everything",
     "world.updatePendingTip": "Installed build {{from}} · latest is {{to}}",
     "world.updateUnknownTip": "Couldn't reach Steam to compare builds, so this may already be current.",
-
     "map.title": "Live player map",
     "map.online": "{{count}} online",
     "map.live": "Live",
@@ -367,11 +360,9 @@
     "mapCal.restHint": "The server's REST API must be enabled. The default REST port is 8212.",
     "mapCal.noPlayers": "Connected, but no players are online. Bring a player online to place reference points.",
     "mapCal.howto": "Click Calibrate, pick a player, then zoom in and click their exact spot. Do 3+ spread-out spots (e.g. start, desert, Feybreak), then Save.",
-
     "common.yes": "yes",
     "common.none": "none",
     "common.browse": "Browse",
-
     "create.addWorld": "Add a world",
     "create.addIntro": "Install a fresh Palworld dedicated server, or register a server you already have on disk.",
     "create.installNew": "Install new server",
@@ -414,11 +405,9 @@
     "create.addThisServer": "Add this server",
     "create.adding": "Adding…",
     "create.registered": "Existing server registered",
-
     "common.send": "Send",
     "common.saving": "Saving…",
     "common.change": "Change",
-
     "admin.broadcastTitle": "Broadcast to players",
     "admin.announcePlaceholder": "Announcement message…",
     "admin.broadcastHint": "Start the world to broadcast.",
@@ -471,18 +460,15 @@
     "admin.wineLaunchFlags": "Wine launch flags",
     "admin.wineLaunchFlagsPlaceholder": "e.g. --version",
     "admin.wineLaunchFlagsHint": "Passed to the wine command itself, before the server executable — not the same as the launch arguments above, which go to the server.",
-
     "common.save": "Save",
     "common.edit": "Edit",
     "common.restore": "Restore",
-
     "logs.linesBuffered_one": "{{count}} line buffered",
     "logs.linesBuffered_other": "{{count}} lines buffered",
     "logs.clear": "Clear",
     "logs.live": "Live",
     "logs.paused": "Paused",
     "logs.waiting": "Waiting for output. Logs appear here when the world is running.",
-
     "backups.backupNow": "Back up now",
     "backups.working": "Working…",
     "backups.importSave": "Import save (.zip)",
@@ -497,7 +483,6 @@
     "backups.importPickerDesktop": "Save import via file picker is available in the desktop app.",
     "backups.imported_one": "Imported save · {{count}} player",
     "backups.imported_other": "Imported save · {{count}} players",
-
     "broadcast.stopBeforeMod": "Stop the world before changing the broadcast mod.",
     "broadcast.modInstalledRestart": "On-screen broadcast mod installed. Restart the world to load it.",
     "broadcast.modCopiedNoUe4ss": "Broadcast mod copied, but UE4SS was not detected — install UE4SS first.",
@@ -544,7 +529,6 @@
     "broadcast.firing": "firing…",
     "broadcast.inTime": "in {{time}}",
     "broadcast.inDaysTime": "in {{days}}d {{time}}",
-
     "info.title": "Info & Guides",
     "info.subtitle": "Optional help for getting the most out of your server.",
     "info.guideInternetTitle": "How to host your server on the internet",
@@ -568,11 +552,9 @@
     "info.step6LocalPort": "<b>Local port:</b> your world's game port (e.g. <code>8211</code> — shown on the world page)",
     "info.step7Title": "Get your public address",
     "info.step7": "playit.gg gives you a <b>public IP and port</b>. Share that with friends — in Palworld they use <b>Join Multiplayer → Connect via IP</b> and paste it. Done!",
-
     "common.on": "On",
     "common.off": "Off",
     "common.reset": "Reset",
-
     "settings.title": "Settings",
     "settings.saved": "Saved",
     "settings.cat.appearance": "Appearance",
@@ -626,10 +608,8 @@
     "settings.devCalibrateTitle": "Calibrate the player map",
     "settings.devCalibrateDesc": "Connect to a Palworld REST API, place reference points, and bake the map calibration into the app so every install gets accurate dots.",
     "settings.devCalibrateBtn": "Calibrate map",
-
     "common.pickerDesktop": "File picker is available in the desktop app.",
     "common.folderPickerDesktop": "Folder picker is available in the desktop app.",
-
     "players.none": "No players online right now.",
     "players.name": "Name",
     "players.level": "Level",
@@ -655,7 +635,6 @@
     "players.daysAgo": "{{n}}d ago",
     "players.streakDays_one": "{{count}} day in a row",
     "players.streakDays_other": "{{count}} days in a row",
-
     "chat.stopBeforeChange": "Stop the world before changing the chat mod.",
     "chat.installedRestart": "Chat mod installed. Restart the world to start capturing chat.",
     "chat.copiedNoUe4ss": "Chat mod copied, but UE4SS was not detected — install UE4SS first.",
@@ -686,7 +665,6 @@
     "chat.startToBroadcast": "Start the world to broadcast",
     "chat.announce": "Announce",
     "chat.footer": "Palworld has no REST endpoint to send as a player, so admin messages go out as a server announcement (broadcast to everyone).",
-
     "deaths.needsUe4ssTitle": "Death tracking needs UE4SS",
     "deaths.needsUe4ssDesc": "Player deaths are read from the game by a small UE4SS mod. Install UE4SS first, then add the death relay mod.",
     "deaths.installUe4ss": "Install UE4SS →",
@@ -717,7 +695,6 @@
     "deaths.byPal": "<v>{{victim}}</v> was slain by <k>{{pal}}</k>",
     "deaths.byPlayer": "<v>{{victim}}</v> was killed by <k>{{killer}}</k>",
     "deaths.byEnv": "<v>{{victim}}</v> died — {{cause}}",
-
     "palmap.globalTitle": "Pal display names",
     "palmap.globalDesc": "Rename how Pals appear in death messages everywhere. These apply to every world; a world can override any of them in its Deaths tab. Pals seen in-game but not yet named show up at the top.",
     "palmap.worldTitle": "Pal name mapping",
@@ -733,7 +710,6 @@
     "palmap.saving": "Saving…",
     "palmap.saved": "Pal names saved.",
     "palmap.hint": "Placeholder text shows the name a blank field inherits. Clearing a box reverts it.",
-
     "schedule.added": "Schedule added",
     "schedule.job": "Job",
     "schedule.jobType.restart": "Restart",
@@ -771,6 +747,10 @@
     "schedule.empty": "No scheduled jobs. Add automatic restarts, backups, updates, or timed messages on a maintenance window.",
     "schedule.lastRun": "Last run: {{time}}",
     "schedule.never": "never",
+    "schedule.skipNext": "Skip next run",
+    "schedule.undoSkip": "Undo skip",
+    "schedule.willSkipNext": "next run will be skipped",
+    "schedule.skipNextTip": "Skip only the next occurrence — the schedule stays on and resumes afterward.",
     "schedule.everyHours": "every {{hours}}h",
     "schedule.everyMinutes": "every {{minutes}} min",
     "schedule.dailyAt": "daily at {{time}}",
@@ -790,7 +770,6 @@
     "warn.save": "Save warnings",
     "warn.saved": "Warning settings saved",
     "warn.defaultMessage": "The server will restart in {minutes} minute(s). Please get to a safe place.",
-
     "mods.loading": "Loading mods…",
     "mods.toggledOn": "Mods enabled — restart to apply",
     "mods.toggledOff": "Mods disabled — restart to apply",
@@ -860,7 +839,6 @@
     "mods.forceLua": "This one ships <b>Lua scripts</b>, which PSM copies into UE4SS itself — so forcing it should work. Restart the world to apply.",
     "mods.forcePakOnly": "This one is <b>Pak-only</b>, and only Palworld's own deploy step can install those — forcing it may do nothing. Enable it, restart, and check the console.",
     "mods.forceConfirm": "Enable anyway",
-
     "discord.testSent": "Test message sent — check your Discord channel",
     "discord.saved": "Discord settings saved",
     "discord.notificationsTitle": "Discord notifications",
@@ -921,7 +899,6 @@
     "discord.discard": "Discard",
     "discord.saving": "Saving…",
     "discord.saveChanges": "Save changes",
-
     "ue4ss.stopBeforeInstall": "Stop the world before installing UE4SS.",
     "ue4ss.installedRestart": "UE4SS installed — restart the world to load it.",
     "ue4ss.installedNotDetected": "Install ran but UE4SS was not detected.",
@@ -953,7 +930,6 @@
     "ue4ss.enabledBtn": "Enabled",
     "ue4ss.disabledBtn": "Disabled",
     "ue4ss.restartNote": "Mods load at server boot — <b>restart the world</b> after any change.",
-
     "palschema.loading": "Loading PalSchema…",
     "palschema.title": "PalSchema mods",
     "palschema.installed": "Installed",
@@ -985,7 +961,6 @@
     "palschema.confirmRemove": "Remove PalSchema mod \"{{name}}\"? Its folder moves to the Recycle Bin / Trash.",
     "palschema.removed": "Mod removed (restart to apply)",
     "palschema.restartNote": "PalSchema mods load at server boot — <b>restart the world</b> after any change.",
-
     "editor.savedChanges_one": "Saved {{count}} change — restart to apply.",
     "editor.savedChanges_other": "Saved {{count}} changes — restart to apply.",
     "editor.noChanges": "No changes to save",
@@ -1018,7 +993,6 @@
     "editor.iniEditorTitle": "Edit the raw PalWorldSettings.ini with version history",
     "editor.on": "On",
     "editor.off": "Off",
-
     "ini.discardConfirm": "You have unsaved changes to the ini. Discard them?",
     "ini.savedRestart": "Saved — restart the world to apply",
     "ini.saved": "Saved",
@@ -1067,7 +1041,6 @@
     "prereqs.starting": "Starting…",
     "prereqs.started": "Installing prerequisites — accept the Windows prompt. Watch progress in Downloads.",
     "prereqs.manualVc": "Or download Visual C++ from Microsoft",
-
     "customize.readError": "Couldn't read image",
     "customize.saved": "World customized",
     "customize.worldName": "World name",
