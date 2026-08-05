@@ -206,6 +206,7 @@ export default function DiscordBotPanel({ world }) {
   const [dir, setDir] = useState({ roles: [], members: [], channels: [], membersNeedIntent: false });
   const [token, setToken] = useState("");
   const [userId, setUserId] = useState("");
+  const [boardChannel, setBoardChannel] = useState("");
   const [filter, setFilter] = useState("");
   const [busy, setBusy] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -318,6 +319,16 @@ export default function DiscordBotPanel({ world }) {
       toast(e.message, "error");
     }
   };
+
+  // Post a fresh live status card to the chosen channel; the server captures its message
+  // id and keeps it updated from then on.
+  const sendBoard = async () => {
+    if (!boardChannel) return;
+    const name = (dir.channels.find((c) => c.id === boardChannel) || {}).name || "";
+    const ok = await save({ statusBoard: { action: "add", channelId: boardChannel, channelName: name } }, t("bot.statusBoardSent"));
+    if (ok) setBoardChannel("");
+  };
+  const removeBoard = (id) => save({ statusBoard: { action: "remove", id } }, t("bot.statusBoardStopped"));
 
   const toggleRole = (id) => grantSubject("role", id, !cfg.allowedRoles.includes(id));
   const toggleUser = (id) => grantSubject("user", id, !cfg.allowedUsers.includes(id));
@@ -439,6 +450,44 @@ export default function DiscordBotPanel({ world }) {
               <option key={c.id} value={c.id}>#{c.name}</option>
             ))}
           </select>
+        </div>
+      )}
+
+      {/* ---- live status board: a status card the bot keeps updated ---- */}
+      {cfg.authorized && (
+        <div className="panel" style={panel}>
+          <h3 className="heading" style={step}>{t("bot.statusBoardTitle")}</h3>
+          <p className="subtle" style={{ fontSize: "0.78rem", marginTop: 0 }}>{t("bot.statusBoardDesc")}</p>
+
+          {(cfg.statusBoards || []).length > 0 && (
+            <div style={{ display: "grid", gap: "0.4rem", marginBottom: "0.8rem" }}>
+              {cfg.statusBoards.map((b) => (
+                <div key={b.id} className="panel-inset" style={{ padding: "0.5rem 0.8rem", display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
+                  <span className="chip chip-ok" style={{ fontSize: "0.7rem" }}>{t("bot.statusBoardLive")}</span>
+                  <span style={{ fontWeight: 700, fontSize: "0.82rem" }}>#{b.channelName || b.channelId}</span>
+                  <button className="btn btn-ghost" style={{ marginLeft: "auto", padding: "0.3rem 0.6rem", fontSize: "0.78rem" }} onClick={() => removeBoard(b.id)} disabled={busy}>
+                    {t("bot.statusBoardStop")}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+            <select
+              className="input" style={{ maxWidth: 320 }} value={boardChannel}
+              onChange={(e) => setBoardChannel(e.target.value)} disabled={busy}
+            >
+              <option value="">{t("bot.statusBoardPick")}</option>
+              {dir.channels
+                .filter((c) => !(cfg.statusBoards || []).some((b) => b.channelId === c.id))
+                .map((c) => <option key={c.id} value={c.id}>#{c.name}</option>)}
+            </select>
+            <button className="btn btn-primary" onClick={sendBoard} disabled={busy || !boardChannel}>
+              <Icon name="globe" size={15} /> {t("bot.statusBoardSend")}
+            </button>
+          </div>
+          <p className="subtle" style={{ fontSize: "0.72rem", marginTop: "0.5rem", marginBottom: 0 }}>{t("bot.statusBoardHint")}</p>
         </div>
       )}
 

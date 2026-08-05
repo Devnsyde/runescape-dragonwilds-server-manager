@@ -108,6 +108,25 @@ export async function POST(req, { params }) {
     }
   }
 
+  // --- live status board: post a self-updating card, or stop one ---
+  // { statusBoard: { action: "add"|"remove", channelId, channelName?, id? } }. Posting
+  // talks to Discord (and may be refused for a channel the bot can't send in), so this
+  // gets its own early return to surface that reason rather than a generic success.
+  if (body.statusBoard && typeof body.statusBoard === "object") {
+    const sb = body.statusBoard;
+    const cur = bot.readConfig(params.id);
+    if (!cur.guildId || !cur.authorizedAt) {
+      return NextResponse.json({ ok: false, error: "Link the bot to a Discord server first." }, { status: 400 });
+    }
+    try {
+      if (sb.action === "remove") await bot.removeStatusBoard(params.id, String(sb.id || ""));
+      else await bot.postStatusBoard(params.id, sb.channelId, sb.channelName);
+    } catch (e) {
+      return NextResponse.json({ ok: false, error: e.message }, { status: 400 });
+    }
+    return NextResponse.json({ ok: true, config: cfgLib.publicConfig(dbm.getWorld(params.id)), status: bot.botStatus(params.id) });
+  }
+
   // --- notify channel for idle auto-stop warnings ---
   // { notifyChannel: { id, name } } — an empty/invalid id clears it (falls back to
   // "no bot announcement"). Only real snowflakes are stored.

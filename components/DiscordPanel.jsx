@@ -9,6 +9,8 @@ const newId = () => `h_${Math.random().toString(36).slice(2, 9)}`;
 // Event kinds that actually fire notify() (lib/discord-routing EVENT_KINDS/PLAYER_KINDS,
 // minus chat which is relayed separately) and the placeholders each one can use.
 const TEMPLATE_KINDS = [
+  { kind: "start", placeholders: ["world", "time"] },
+  { kind: "stop", placeholders: ["world", "time"] },
   { kind: "join", placeholders: ["world", "player", "time"] },
   { kind: "leave", placeholders: ["world", "player", "time"] },
   { kind: "crash", placeholders: ["world", "code", "time"] },

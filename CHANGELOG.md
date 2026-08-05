@@ -3,6 +3,24 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.8.0] — 2026-08-05
+
+### Added
+- **Live status board for the Discord bot.** Under a world's **Discord Bot** tab, a new
+  **Live status board** section lets you pin a status card to a channel: pick a channel, hit
+  **Send status card**, and the bot posts one embed and then keeps *that same message* updated —
+  online/offline, in-game day, player count and who's on — instead of posting a fresh `/status`
+  each time. Add as many as you like across channels or servers (up to 10). The card refreshes
+  on a timer and flips instantly when the server starts, stops or restarts, but only edits the
+  message when something a viewer would actually notice changes (uptime alone won't trigger an
+  edit), so it stays well inside Discord's rate limits. It respects the same `/status` field
+  toggles, drops itself automatically if the message is deleted in Discord, and explains clearly
+  if the bot lacks permission to post in the chosen channel.
+- **Message templates for server start and stop.** The per-world **Discord → Message templates**
+  editor now covers **Server started** and **Server stopped** as well, so every routed event —
+  not just joins, deaths, backups and the rest — can have custom text (with `{world}` / `{time}`
+  placeholders). Leaving a template blank keeps the existing built-in message.
+
 ## [2.7.0] — 2026-08-01
 
 ### Added
