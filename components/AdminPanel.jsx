@@ -18,6 +18,7 @@ export default function AdminPanel({ world, running, onChange }) {
   const [crashGuard, setCrashGuard] = useState(!!world.crash_guard);
   const [community, setCommunity] = useState(!!world.community_server);
   const [legacyPerf, setLegacyPerf] = useState(world.legacy_perf_flags !== 0);
+  const [rconOn, setRconOn] = useState(!!world.rcon_enabled);
   const [saving, setSaving] = useState(false);
   const [installDir, setInstallDir] = useState(world.install_dir || "");
   const [movingDir, setMovingDir] = useState(false);
@@ -73,7 +74,7 @@ export default function AdminPanel({ world, running, onChange }) {
           display_name: name, admin_password: password, server_password: serverPassword,
           extra_args: extraArgs, env_vars: envTextToObject(envVars),
                 autostart: autostart ? 1 : 0, crash_guard: crashGuard ? 1 : 0, community_server: community ? 1 : 0,
-                legacy_perf_flags: legacyPerf ? 1 : 0,
+                legacy_perf_flags: legacyPerf ? 1 : 0, rcon_enabled: rconOn ? 1 : 0,
         },
       });
       toast(t("admin.profileSaved"), "success");
@@ -205,6 +206,21 @@ export default function AdminPanel({ world, running, onChange }) {
           </div>
         </div>
 
+        <div className="panel-inset" style={{ padding: "0.9rem 1.1rem", marginTop: "0.9rem", borderLeft: `3px solid ${rconOn ? "var(--green-bright)" : "var(--line-strong)"}` }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+            <div style={{ minWidth: 240, flex: 1 }}>
+              <div className="heading" style={{ fontSize: "0.92rem" }}>{t("admin.rconTitle")}</div>
+              <div className="subtle" style={{ fontWeight: 600, fontSize: "0.78rem", marginTop: 2 }}>
+                <Trans i18nKey="admin.rconDesc" components={{ code: <code /> }} />
+              </div>
+            </div>
+            <Toggle label={rconOn ? t("common.on") : t("common.off")} on={rconOn} onClick={() => setRconOn((v) => !v)} />
+          </div>
+          <div className="subtle" style={{ fontWeight: 600, fontSize: "0.72rem", marginTop: 8 }}>
+            {t("admin.rconNote")}
+          </div>
+        </div>
+
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "1rem" }}>
           <button className="btn btn-primary" onClick={saveProfile} disabled={saving}><Icon name="download" /> {saving ? t("common.saving") : t("admin.saveProfile")}</button>
         </div>
@@ -239,7 +255,7 @@ export default function AdminPanel({ world, running, onChange }) {
           <PortField label={t("admin.portGameUdp")} value={ports.game_port} disabled={running} onChange={(v) => setPorts((p) => ({ ...p, game_port: v }))} />
           <PortField label={t("admin.portQuery")} value={ports.query_port} disabled={running} onChange={(v) => setPorts((p) => ({ ...p, query_port: v }))} />
           <PortField label={t("admin.portRest")} value={ports.rest_api_port} disabled={running} onChange={(v) => setPorts((p) => ({ ...p, rest_api_port: v }))} />
-          <PortField label={t("admin.portRcon")} value={ports.rcon_port} disabled={running || !world.rcon_enabled} onChange={(v) => setPorts((p) => ({ ...p, rcon_port: v }))} />
+          <PortField label={t("admin.portRcon")} value={ports.rcon_port} disabled={running || !rconOn} onChange={(v) => setPorts((p) => ({ ...p, rcon_port: v }))} />
         </div>
         <p className="subtle" style={{ fontWeight: 700, fontSize: "0.74rem", marginTop: "0.5rem" }}>
           {t("admin.portsHint")}

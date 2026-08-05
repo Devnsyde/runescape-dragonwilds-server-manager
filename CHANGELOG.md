@@ -3,6 +3,29 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.8.10] — 2026-08-05
+
+### Added
+- **Keep RCON on without it being reset.** The **Admin** tab has a new **Enable RCON (legacy)**
+  toggle. Palworld's RCON is off by default here and the manager rewrites `RCONEnabled` on every
+  start, so anyone who set `RCONEnabled=true` by hand kept losing it (the workaround was making
+  `PalWorldSettings.ini` read-only). Turn this on and the manager writes `RCONEnabled=True` plus the
+  RCON port for you and stops resetting it — needed by tools like PalDefender that still rely on
+  RCON. It stays deprecated by Pocketpair, but works today. (Reported in #17.)
+
+### Fixed
+- **No more save-loss on a scheduled restart or stop.** A graceful stop or restart now forces the
+  server to save the world *before* it shuts down, instead of trusting the exit-time save to finish
+  in time. Populated servers were rolling back 5–10 minutes on every scheduled restart because the
+  process could go away before that save completed. Managed settings are preserved across the stop
+  as before. (Reported in #18.)
+
+### Changed
+- **Anti-cheat note on the performance flags.** The **Legacy performance flags** setting now spells
+  out that PalDefender and similar anti-cheat mods need `-NoAsyncLoadingThread` left on to avoid
+  heap-corruption crashes — it's on by default, but worth knowing before turning it off. (Raised
+  in #24.)
+
 ## [2.8.9] — 2026-08-05
 
 ### Added

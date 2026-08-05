@@ -97,7 +97,7 @@ export async function PATCH(req, { params }) {
     dbm.logEvent(params.id, "settings", `Install folder changed to ${info.installDir}`);
   }
 
-  const allowed = ["display_name", "admin_password", "server_password", "autostart", "crash_guard", "rest_api_enabled", "extra_args", "env_vars", "wine_binary", "wine_prefix", "wine_launch_flags", "game_port", "query_port", "rest_api_port", "rcon_port", "community_server", "mods_enabled", "discord_webhook", "notify_events", "discord_relay_chat", "discord_webhooks", "notify_templates", "warn_enabled", "warn_lead_minutes", "warn_interval_minutes", "warn_message", "legacy_perf_flags"];
+  const allowed = ["display_name", "admin_password", "server_password", "autostart", "crash_guard", "rest_api_enabled", "extra_args", "env_vars", "wine_binary", "wine_prefix", "wine_launch_flags", "game_port", "query_port", "rest_api_port", "rcon_port", "rcon_enabled", "community_server", "mods_enabled", "discord_webhook", "notify_events", "discord_relay_chat", "discord_webhooks", "notify_templates", "warn_enabled", "warn_lead_minutes", "warn_interval_minutes", "warn_message", "legacy_perf_flags"];
 
   const clean = {};
   for (const k of allowed) if (k in patch) clean[k] = patch[k];
@@ -135,6 +135,7 @@ export async function PATCH(req, { params }) {
   if ("discord_relay_chat" in clean) clean.discord_relay_chat = clean.discord_relay_chat ? 1 : 0;
   if ("warn_enabled" in clean) clean.warn_enabled = clean.warn_enabled ? 1 : 0;
   if ("legacy_perf_flags" in clean) clean.legacy_perf_flags = clean.legacy_perf_flags ? 1 : 0;
+  if ("rcon_enabled" in clean) clean.rcon_enabled = clean.rcon_enabled ? 1 : 0;
   for (const k of ["warn_lead_minutes", "warn_interval_minutes"]) {
     if (k in clean) clean[k] = Math.max(0, parseInt(clean[k], 10) || 0);
   }
