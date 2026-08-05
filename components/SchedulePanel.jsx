@@ -128,6 +128,7 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
             <label className="label">{t("schedule.job")}</label>
             <select className="input" value={jobType} onChange={(e) => onJobType(e.target.value)}>
               <option value="restart">{t("schedule.jobType.restart")}</option>
+              <option value="stop">{t("schedule.jobType.stop")}</option>
               <option value="backup">{t("schedule.jobType.backup")}</option>
               <option value="update">{t("schedule.jobType.update")}</option>
               <option value="system_message">{t("schedule.jobType.system_message")}</option>
@@ -227,7 +228,7 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
 }
 
 // Per-world player-warning countdown shown before a scheduled OR manual
-// restart/update. Broadcasts announce messages at each interval, then Palworld's
+// stop/restart/update. Broadcasts announce messages at each interval, then Palworld's
 // native red shutdown countdown covers the final minute.
 function WarningConfig({ world, onChange }) {
   const { t } = useTranslation();

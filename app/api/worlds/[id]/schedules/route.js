@@ -13,7 +13,7 @@ export async function GET(req, { params }) {
   return NextResponse.json({ ok: true, schedules: dbm.listSchedules(params.id) });
 }
 
-const JOB_TYPES = ["restart", "backup", "update", "system_message", "onscreen_notice", "idle_stop"];
+const JOB_TYPES = ["restart", "stop", "backup", "update", "system_message", "onscreen_notice", "idle_stop"];
 const MODES = ["interval", "daily", "minutes", "on_join"];
 const MESSAGE_JOBS = ["system_message", "onscreen_notice"];
 

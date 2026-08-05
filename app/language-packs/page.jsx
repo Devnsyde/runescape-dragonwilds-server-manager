@@ -49,8 +49,8 @@ export default function LanguagePacksPage() {
   },
   "strings": {
     "nav.worlds": "Mondes",
-    "common.save": "Enregistrer",
-    "worlds.summary_one": "{{count}} monde · {{running}} en cours"
+    "common.save": "Sauvegarder",
+    "worlds.summary_one": "{{count}} monde · {{running}} en cours · {{players}} en ligne"
   }
 }`;
 

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-08-01T18:00:00Z",
+  "updatedAt": "2026-08-05T18:00:00Z",
   "packs": [
     {
       "code": "de",
@@ -48,6 +48,18 @@
       ],
       "url": "https://raw.githubusercontent.com/PrakashMandal-IV/palworld-server-manager/main/registry/packs/ja.json",
       "updatedAt": "2026-07-30T18:00:00Z",
+      "completeness": 100
+    },
+    {
+      "code": "pt-BR",
+      "name": "Portuguese (Brazil)",
+      "nativeName": "Português (Brasil)",
+      "dir": "ltr",
+      "authors": [
+        "@oSuperTheus - Github"
+      ],
+      "url": "https://raw.githubusercontent.com/PrakashMandal-IV/palworld-server-manager/main/registry/packs/pt-BR.json",
+      "updatedAt": "2026-08-05T18:00:00Z",
       "completeness": 100
     },
     {

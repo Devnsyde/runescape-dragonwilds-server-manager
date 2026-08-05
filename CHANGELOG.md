@@ -3,7 +3,7 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.8.0] — 2026-08-05
+## [2.8.9] — 2026-08-05
 
 ### Added
 - **Live status board for the Discord bot.** Under a world's **Discord Bot** tab, a new
@@ -20,6 +20,25 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   editor now covers **Server started** and **Server stopped** as well, so every routed event —
   not just joins, deaths, backups and the rest — can have custom text (with `{world}` / `{time}`
   placeholders). Leaving a template blank keeps the existing built-in message.
+- **Schedule a stop.** The **Schedule** tab has a new **Stop** job alongside Restart, so you can
+  schedule a shutdown — e.g. a nightly stop or a one-off for maintenance — on any interval, minutes
+  or daily-at-a-time cadence. It runs the same courtesy path as a scheduled restart: a safety
+  backup, the configured player warning countdown, then a graceful shutdown (the world stays down).
+  A stop scheduled while the server is already off is simply skipped. (Requested in #26.)
+- **Brazilian Portuguese (Português do Brasil).** Added a community-contributed **pt-BR** language
+  pack to the downloadable catalog under **Settings → Language packs**, courtesy of
+  [@oSuperTheus](https://github.com/oSuperTheus). (Requested in #27.)
+
+### Changed
+- **Player warnings now cover shutdowns, not just restarts/updates.** With **Warn players** enabled,
+  pressing **Stop** (or a scheduled Stop) now runs the same in-game countdown a restart does before
+  the server goes down, instead of stopping immediately. **Force-stop** still skips the warning for
+  when you need it down now. The setting is renamed to *Warn players before stop / restart / update*
+  to match.
+- **Update failures now say *why*.** When a SteamCMD update genuinely fails, the error no longer
+  reads just `SteamCMD failed (code 8)` — it now includes SteamCMD's own reason (e.g. *Disk write
+  failure*) plus a plain-language next step (check free disk space, antivirus/permissions, or a
+  locked install folder). Codes 7/8 that verify fine on disk are still treated as success as before.
 
 ## [2.7.0] — 2026-08-01
 
