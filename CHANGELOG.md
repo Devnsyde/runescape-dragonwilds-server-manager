@@ -14,6 +14,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   RCON. It stays deprecated by Pocketpair, but works today. (Reported in #17.)
 
 ### Fixed
+- **Join and leave entries now use the same (in-game) name.** On connect, Palworld briefly
+  reports a player under their platform account name (Steam/Xbox/PS5) until their character loads,
+  so a join was logged/announced under the account name while the matching leave used the in-game
+  name — confusing in the log, the Discord posts, and Player Activity. Joins are now held for a
+  short grace window and recorded once the in-game name has loaded, so both entries match. Players
+  who disconnect within that window (never fully loaded in) no longer produce a stray join/leave
+  pair. (Reported on Nexus.)
 - **No more FPS drop when the manager is minimized.** The hosted game server follows Windows'
   system-wide timer resolution, which a foreground window keeps high — so minimizing the manager
   used to let the timer fall back and roughly halve server FPS (fine when focused or hidden to the
