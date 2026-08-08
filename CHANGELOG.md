@@ -3,7 +3,7 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.8.10] — 2026-08-05
+## [2.8.10] — 2026-08-09
 
 ### Added
 - **Keep RCON on without it being reset.** The **Admin** tab has a new **Enable RCON (legacy)**
