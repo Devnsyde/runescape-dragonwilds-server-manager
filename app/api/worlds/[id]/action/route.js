@@ -17,18 +17,12 @@ export async function POST(req, { params }) {
   try {
     let result;
     if (action === "start") { result = await sup.startWorld(params.id); notify(params.id, "start", `${w.display_name} started`); }
-    else if (action === "stop") {
-      // A stop is a shutdown too, so it gets the same warning courtesy as a restart:
-      // if this world warns players, broadcast the countdown in the background and
-      // return immediately rather than blocking the request for minutes. Force-stop
-      // (below) stays the immediate, no-warning path.
-      if (warn.shouldWarn(w, sup.isRunning, params.id)) {
-        notify(params.id, "stop", `${w.display_name} stopping — warning players first`);
-        warn.warnedStop(params.id);
-        return NextResponse.json({ ok: true, result: { warned: true, leadMinutes: w.warn_lead_minutes } });
-      }
-      result = await sup.stopWorld(params.id, { graceful: true }); notify(params.id, "stop", `${w.display_name} stopped`);
-    }
+    // The manual Stop button is a deliberate admin action — stop the world promptly
+    // with a graceful (native ~15s) shutdown, not a multi-minute warning countdown.
+    // Player warnings apply to *scheduled* stops/restarts (unattended) and to the
+    // Restart button; a hands-on Stop should not wait out warn_lead_minutes. Force-stop
+    // (below) is the immediate SIGKILL escape hatch.
+    else if (action === "stop") { result = await sup.stopWorld(params.id, { graceful: true }); notify(params.id, "stop", `${w.display_name} stopped`); }
     else if (action === "restart") {
       // If this world warns players before shutdown, the countdown can run for
       // several minutes — don't block the HTTP request on it. Kick the warned

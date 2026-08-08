@@ -14,6 +14,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   RCON. It stays deprecated by Pocketpair, but works today. (Reported in #17.)
 
 ### Fixed
+- **The Stop button is instant-graceful again.** In 2.8.9 the top-right **Stop** button started
+  running the full player-warning countdown (up to your *warn lead*, e.g. 10–15 minutes) before
+  shutting down, so a hands-on "Stop" turned into "shut down later." It now goes straight to a
+  graceful (~15s native) shutdown as it did in 2.7.0 and earlier — and, thanks to the save fix
+  below, saves the world first. Player warnings still apply to **scheduled** stops and to the
+  **Restart** button; **Force-stop** is still the immediate kill. (Reported on Nexus.)
 - **No more save-loss on a scheduled restart or stop.** A graceful stop or restart now forces the
   server to save the world *before* it shuts down, instead of trusting the exit-time save to finish
   in time. Populated servers were rolling back 5–10 minutes on every scheduled restart because the
