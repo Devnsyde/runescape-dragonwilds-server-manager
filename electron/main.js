@@ -1,5 +1,17 @@
 // electron/main.js
-const { app, BrowserWindow, ipcMain, dialog, shell, nativeTheme, Menu, Tray, nativeImage } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, shell, nativeTheme, Menu, Tray, nativeImage, powerSaveBlocker } = require("electron");
+
+// Keep background work full-speed when the window is minimized (issue #29).
+// PalServer's tick loop follows the *system-wide* timer resolution. A foreground
+// Chromium app pins that high (~1ms); when minimized, Chromium's background
+// throttling releases it, the timer falls back to ~15.6ms, and the (hidden,
+// console-less) server's frame rate roughly halves. These switches stop Chromium
+// from throttling timers/renderers while backgrounded, so the server keeps full
+// FPS whether the manager is focused, minimized, or hidden to the tray. Must be
+// set before app is ready.
+app.commandLine.appendSwitch("disable-background-timer-throttling");
+app.commandLine.appendSwitch("disable-renderer-backgrounding");
+app.commandLine.appendSwitch("disable-backgrounding-occluded-windows");
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
@@ -400,6 +412,9 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
+      // Don't throttle timers/rendering when this window is minimized or occluded —
+      // the managed game server free-rides on our timer resolution (issue #29).
+      backgroundThrottling: false,
     },
   });
 
@@ -457,6 +472,10 @@ function main() {
   app.whenReady().then(async () => {
     // Ensures Windows uses our icon (not the default Electron one) in the taskbar.
     if (process.platform === "win32") app.setAppUserModelId("com.palworld.servermanager");
+    // Keep the OS from suspending this process (and starving the game server it hosts)
+    // while the manager sits minimized or in the tray (issue #29). 'prevent-app-suspension'
+    // keeps the system active but still lets the display sleep. Best-effort.
+    try { powerSaveBlocker.start("prevent-app-suspension"); } catch {}
     initAutostart();
 
     // Did we launch at login (autostart-to-tray) rather than by hand? The .desktop /

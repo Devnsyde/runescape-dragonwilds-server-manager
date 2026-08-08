@@ -14,6 +14,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   RCON. It stays deprecated by Pocketpair, but works today. (Reported in #17.)
 
 ### Fixed
+- **No more FPS drop when the manager is minimized.** The hosted game server follows Windows'
+  system-wide timer resolution, which a foreground window keeps high — so minimizing the manager
+  used to let the timer fall back and roughly halve server FPS (fine when focused or hidden to the
+  tray, bad only when minimized). The app now disables background timer/renderer throttling and
+  holds a power-save blocker, so the server runs full-speed regardless of window state. (Reported
+  in #29.)
 - **The Stop button is instant-graceful again.** In 2.8.9 the top-right **Stop** button started
   running the full player-warning countdown (up to your *warn lead*, e.g. 10–15 minutes) before
   shutting down, so a hands-on "Stop" turned into "shut down later." It now goes straight to a
