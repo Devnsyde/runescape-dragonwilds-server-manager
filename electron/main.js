@@ -12,6 +12,15 @@ const { app, BrowserWindow, ipcMain, dialog, shell, nativeTheme, Menu, Tray, nat
 app.commandLine.appendSwitch("disable-background-timer-throttling");
 app.commandLine.appendSwitch("disable-renderer-backgrounding");
 app.commandLine.appendSwitch("disable-backgrounding-occluded-windows");
+
+// Run without Chromium's sandbox on Linux (issue #32). The AppImage mounts read-only,
+// so its bundled chrome-sandbox can't be setuid-root, and server distros often restrict
+// unprivileged user namespaces and/or run as root — all of which make Chromium abort
+// with "The SUID sandbox helper binary ... is not configured correctly". Disabling the
+// sandbox is safe here: the renderer only ever loads this app's own 127.0.0.1 UI (external
+// links open in the system browser), so there's no untrusted web content to contain. This
+// also lets the app run as root, which is common on a headless server.
+if (process.platform === "linux") app.commandLine.appendSwitch("no-sandbox");
 const path = require("path");
 const fs = require("fs");
 const os = require("os");

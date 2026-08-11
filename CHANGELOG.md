@@ -3,6 +3,16 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.8.11] — 2026-08-09
+
+### Fixed
+- **Linux AppImage runs out of the box again.** On Ubuntu Server (and other locked-down or
+  run-as-root Linux hosts) the AppImage aborted with *"The SUID sandbox helper binary … is not
+  configured correctly"* — the AppImage mounts read-only so its `chrome-sandbox` can't be
+  setuid-root, and servers often restrict user namespaces. The app now launches without Chromium's
+  sandbox on Linux, which is safe here because the window only loads the app's own local UI. No more
+  extracting the AppImage and `chmod`-ing `chrome-sandbox` by hand. (Reported in #32.)
+
 ## [2.8.10] — 2026-08-09
 
 ### Added
