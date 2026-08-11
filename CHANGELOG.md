@@ -3,6 +3,16 @@
 All notable changes to Palworld Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.9.0] — 2026-08-09
+
+### Added
+- **Schedule a custom request.** The **Schedule** tab has a new **Custom request** job that fires an
+  HTTP request — method, URL, headers and body you define — on any interval, minutes, or daily-at-a-time
+  cadence, with the same **Skip next** control as every other job. It's aimed at admins who run their
+  own integrations/APIs and want to trigger custom commands (e.g. a `/alert` endpoint) on a timer
+  across several servers without doing it by hand. Each run is logged with the response status.
+  (Requested in #30.)
+
 ## [2.8.11] — 2026-08-09
 
 ### Fixed

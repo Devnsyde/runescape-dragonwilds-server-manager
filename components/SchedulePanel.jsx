@@ -15,11 +15,29 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
   const [message, setMessage] = useState("");
   const [joinMatch, setJoinMatch] = useState("");
   const [joinDelay, setJoinDelay] = useState(10);
+  const [httpMethod, setHttpMethod] = useState("POST");
+  const [httpUrl, setHttpUrl] = useState("");
+  const [httpHeaders, setHttpHeaders] = useState("");
+  const [httpBody, setHttpBody] = useState("");
   const [busy, setBusy] = useState(false);
   const [onScreenReady, setOnScreenReady] = useState(null); // null = unknown, true/false once checked
 
   const isMessageJob = MESSAGE_JOBS.includes(jobType);
   const isIdleJob = jobType === "idle_stop";
+  const isHttpJob = jobType === "custom_http";
+
+  // Parse the headers textarea ("Header: value" per line) into an object.
+  const parseHeaders = (text) => {
+    const out = {};
+    for (const line of String(text || "").split("\n")) {
+      const i = line.indexOf(":");
+      if (i <= 0) continue;
+      const k = line.slice(0, i).trim();
+      const v = line.slice(i + 1).trim();
+      if (k) out[k] = v;
+    }
+    return out;
+  };
 
   // On-screen notices are delivered through the PSMBroadcast mod, which is set up on
   // the Broadcast tab. Check whether it's installed so we can warn (and offer a jump
@@ -45,6 +63,7 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
 
   const add = async () => {
     if (isMessageJob && !message.trim()) return toast(t("schedule.messageRequired"), "error");
+    if (isHttpJob && !httpUrl.trim()) return toast(t("schedule.urlRequired"), "error");
     setBusy(true);
     try {
       await api(`/api/worlds/${worldId}/schedules`, {
@@ -57,10 +76,12 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
           message: isMessageJob ? message.trim() : null,
           join_match: mode === "on_join" ? joinMatch.trim() : null,
           join_delay_seconds: mode === "on_join" ? Number(joinDelay) : null,
+          ...(isHttpJob ? { method: httpMethod, url: httpUrl.trim(), headers: parseHeaders(httpHeaders), body: httpBody } : {}),
         },
       });
       toast(t("schedule.added"), "success");
       setMessage(""); setJoinMatch("");
+      if (isHttpJob) { setHttpUrl(""); setHttpHeaders(""); setHttpBody(""); }
       onChange();
     } catch (e) { toast(e.message, "error"); }
     finally { setBusy(false); }
@@ -103,6 +124,9 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
   };
   const describe = (s) => {
     const head = `${t(`schedule.jobType.${s.job_type}`, { defaultValue: s.job_type })} · ${describeWhen(s)}`;
+    if (s.job_type === "custom_http") {
+      try { const c = JSON.parse(s.message || "{}"); return `${head} — ${c.method || "GET"} ${c.url || ""}`; } catch { return head; }
+    }
     return s.message ? `${head} — "${s.message}"` : head;
   };
 
@@ -133,6 +157,7 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
               <option value="update">{t("schedule.jobType.update")}</option>
               <option value="system_message">{t("schedule.jobType.system_message")}</option>
               <option value="onscreen_notice">{t("schedule.jobType.onscreen_notice")}</option>
+              <option value="custom_http">{t("schedule.jobType.custom_http")}</option>
               <option value="idle_stop">{t("schedule.jobType.idle_stop")}</option>
             </select>
           </div>
@@ -185,6 +210,31 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
               {t(jobType === "onscreen_notice" ? "schedule.onscreenHint" : "schedule.systemHint")}
               {mode === "on_join" && ` ${t("schedule.playerFilterHint")} ${t("schedule.joinDelayHint")} ${t("schedule.playerTokenHint")}`}
             </p>
+          </div>
+        )}
+        {isHttpJob && (
+          <div style={{ display: "grid", gap: "0.5rem" }}>
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "flex-end" }}>
+              <div>
+                <label className="label">{t("schedule.httpMethod")}</label>
+                <select className="input" value={httpMethod} onChange={(e) => setHttpMethod(e.target.value)} style={{ width: 110 }}>
+                  {["GET", "POST", "PUT", "PATCH", "DELETE"].map((m) => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+              <div style={{ flex: 1, minWidth: 220 }}>
+                <label className="label">{t("schedule.httpUrl")}</label>
+                <input className="input" value={httpUrl} onChange={(e) => setHttpUrl(e.target.value)} placeholder="https://my-api.example.com/alert" />
+              </div>
+            </div>
+            <div>
+              <label className="label">{t("schedule.httpHeaders")}</label>
+              <textarea className="input" value={httpHeaders} onChange={(e) => setHttpHeaders(e.target.value)} rows={2} placeholder={"Authorization: Bearer …\nContent-Type: application/json"} style={{ resize: "vertical", fontFamily: "monospace", fontSize: "0.78rem" }} />
+            </div>
+            <div>
+              <label className="label">{t("schedule.httpBody")}</label>
+              <textarea className="input" value={httpBody} onChange={(e) => setHttpBody(e.target.value)} rows={2} placeholder={'{"event":"alert"}'} style={{ resize: "vertical", fontFamily: "monospace", fontSize: "0.78rem" }} />
+            </div>
+            <p className="subtle" style={{ fontWeight: 600, fontSize: "0.72rem", margin: 0 }}>{t("schedule.httpHint")}</p>
           </div>
         )}
         {isIdleJob && (
