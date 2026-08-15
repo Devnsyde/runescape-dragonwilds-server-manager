@@ -152,7 +152,7 @@ function applyAutostart(enabled) {
         const entry = [
           "[Desktop Entry]",
           "Type=Application",
-          "Name=Runescape DragonWilds Server Manager",
+          "Name=Runescape Dragonwilds Server Manager",
           `Exec="${exe}" --hidden`,
           "X-GNOME-Autostart-enabled=true",
           "",
@@ -469,7 +469,7 @@ function showErrorWindow(message) {
   if (mainWindow) return;
   mainWindow = new BrowserWindow({
     width: 720, height: 420, backgroundColor: "#1e1f22",
-    autoHideMenuBar: true, title: "Runescape: DragonWilds Server Manager",
+    autoHideMenuBar: true, title: "Runescape: Dragonwilds Server Manager",
   });
   Menu.setApplicationMenu(null);
   const html = `<!doctype html><html><body style="font-family:Segoe UI,system-ui,sans-serif;background:#1e1f22;color:#f2f3f5;padding:40px;line-height:1.6">

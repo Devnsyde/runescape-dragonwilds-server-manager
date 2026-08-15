@@ -1,8 +1,8 @@
--- DWSMDeathRelay — DragonWilds Server Manager player-death relay
+-- DWSMDeathRelay — Dragonwilds Server Manager player-death relay
 --
 -- Detects player deaths server-side and appends one JSON line per death to
 --   Pal/Saved/dwsm-deaths.jsonl
--- which the RuneScape DragonWilds Server Manager app tails to log the death and route it to Discord.
+-- which the RuneScape Dragonwilds Server Manager app tails to log the death and route it to Discord.
 --
 -- Hook (one, low-frequency):
 --   /Script/Pal.PalBattleManager:EventOnPlayerDeadCompletely(victim, PalDyingEndInfo)

@@ -1,6 +1,6 @@
-# Runescape DragonWilds Server Manager
+# Runescape Dragonwilds Server Manager
 
-A desktop app for Windows and Linux that makes running one or more **Runescape DragonWilds dedicated
+A desktop app for Windows and Linux that makes running one or more **Runescape Dragonwilds dedicated
 servers** simple — no command line, no editing config files by hand. Install it, point it at
 a server (new or existing), and manage everything from a clean interface.
 
@@ -24,7 +24,7 @@ a server (new or existing), and manage everything from a clean interface.
 
 ## What it does
 
-- **Provision new servers** via SteamCMD, or **adopt an existing** Runescape DragonWilds dedicated
+- **Provision new servers** via SteamCMD, or **adopt an existing** Runescape Dragonwilds dedicated
   server install (it keeps your world, settings, and admin password).
 - **Cross-platform hosting** — provision a **Windows** or **Linux** server regardless of
   the host OS, and run a Windows-target server on a Linux machine through **Wine** (per-world
@@ -33,8 +33,8 @@ a server (new or existing), and manage everything from a clean interface.
   on Windows.)
 - **Start / stop / restart / update** each world with one click. A crash guardian can
   automatically restart a server that goes down, and an optional **auto-update** keeps a
-  world on the latest Runescape DragonWilds build.
--- **Full settings editor** — every option from `DragonWildsSettings.ini` (100+ settings)
+  world on the latest Runescape Dragonwilds build.
+-- **Full settings editor** — every option from `DragonwildsSettings.ini` (100+ settings)
   grouped into readable sections, with search, per-field reset, and community-tested
   presets. Only the settings you change are written, so nothing else is disturbed.
 - **Console** — live server log stream.
@@ -60,11 +60,11 @@ a server (new or existing), and manage everything from a clean interface.
 
 Grab the latest installer from the Releases page for this project.
 
-- **Windows (installer):** `Runescape DragonWilds Server Manager Setup <version>.exe`
-- **Windows (portable, no install):** `RunescapeDragonWildsServerManager-<version>-portable.exe` — runs
+- **Windows (installer):** `Runescape Dragonwilds Server Manager Setup <version>.exe`
+- **Windows (portable, no install):** `RunescapeDragonwildsServerManager-<version>-portable.exe` — runs
   without installing and keeps all its data in a `PSM-Data` folder next to the `.exe`, so
   you can carry it (and your worlds) on a USB stick or between PCs.
-- **Linux:** `Runescape DragonWilds Server Manager-<version>.AppImage`
+- **Linux:** `Runescape Dragonwilds Server Manager-<version>.AppImage`
 
 > The Windows builds are not yet code-signed, so SmartScreen may show an
 > "unrecognized app" warning. Click **More info → Run anyway** to proceed.
@@ -93,7 +93,7 @@ join with:
 127.0.0.1:<game port>     (e.g. 127.0.0.1:8211)
 ```
 
-In Runescape DragonWilds: **Join Multiplayer → Connect via IP** and paste the address.
+In Runescape Dragonwilds: **Join Multiplayer → Connect via IP** and paste the address.
 
 ### Letting friends join over the internet
 By default your server is only reachable on your local network. To open it up you can port
@@ -115,7 +115,7 @@ a launch flag. A **private/dedicated** server is joined by IP only. Either way, 
 
  The game only applies server settings **when the server boots**, so after changing settings
 you must **restart** the world for them to take effect. The app writes a minimal config
-(only what you change), matching how RuneScape DragonWilds game server itself stores settings — so your existing
+(only what you change), matching how RuneScape Dragonwilds game server itself stores settings — so your existing
 values and any in-game choices are preserved.
 
 Ports, the REST API, and the admin password are managed by the app automatically and aren't
@@ -132,7 +132,7 @@ folder:
 -- **Windows (portable):** a `PSM-Data` folder next to the portable `.exe`
 -- **Linux:** `~/.config/runescape-dragonwilds-server-manager/`
 
-Your actual Runescape DragonWilds worlds, saves, and settings stay in each server's own install folder —
+Your actual Runescape Dragonwilds worlds, saves, and settings stay in each server's own install folder —
 the app never moves them.
 
 ---
@@ -140,7 +140,7 @@ the app never moves them.
 ## Requirements
 
 - Windows 10/11 (64-bit) or a modern 64-bit Linux distribution.
-- Enough disk space for the Runescape DragonWilds dedicated server and its saves.
+- Enough disk space for the Runescape Dragonwilds dedicated server and its saves.
 
 ## Future tasks (not for right now)
 

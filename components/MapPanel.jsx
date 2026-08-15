@@ -123,9 +123,9 @@ export default function MapPanel({ players, running, devCalibrate = false }) {
   };
   const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
 
-  // For DragonWilds we embed an external interactive map (Fextralife). The
+  // For Dragonwilds we embed an external interactive map (Fextralife). The
   // original Palworld raster + calibration pipeline is not compatible with
-  // DragonWilds; keep a graceful fallback that hides the raster renderer and
+  // Dragonwilds; keep a graceful fallback that hides the raster renderer and
   // simply points the UI at the external map URL.
   useEffect(() => {
     // Use the Fextralife interactive map for RuneScape: Dragonwilds.
@@ -264,7 +264,7 @@ export default function MapPanel({ players, running, devCalibrate = false }) {
           {raster ? (
             <div style={{ position: "absolute", inset: 0, background: `center / cover no-repeat url(${raster})` }} />
           ) : (
-            // When raster is disabled we embed the DragonWilds interactive map
+            // When raster is disabled we embed the Dragonwilds interactive map
             // in an iframe. The map is hosted externally (Fextralife) and will
             // open inside the map panel; interactive features (zoom/pan) come
             // from the external site.

@@ -2,8 +2,8 @@
 
 _Last updated: 8 July 2026_
 
-Runescape DragonWilds Server Manager ("the app") is a desktop application you install and run on
-your own computer to manage Runescape DragonWilds dedicated servers. Your privacy is simple to
+Runescape Dragonwilds Server Manager ("the app") is a desktop application you install and run on
+your own computer to manage Runescape Dragonwilds dedicated servers. Your privacy is simple to
 explain because the app is designed to keep your data on your machine.
 
 ## What the app collects

@@ -8,7 +8,7 @@ const { loadResources, languageMeta } = require("@/lib/i18n/loader");
 
 export const metadata = {
   title: "RSDW Server Manager",
-  description: "Provision, run, monitor and update multiple Runescape DragonWilds dedicated server worlds.",
+  description: "Provision, run, monitor and update multiple Runescape Dragonwilds dedicated server worlds.",
   // Serve the favicon from public/icon.png. (Not via the app/icon.png convention,
   // which would collide with public/icon.png for the /icon.png URL and 500.)
   icons: { icon: "/icon.png" },

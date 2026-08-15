@@ -2,9 +2,9 @@
 --
 -- Hooks the server's chat broadcast and appends every message as one JSON line to
 --   Pal/Saved/dwsm-chat.jsonl
--- which the Runescape DragonWilds Server Manager app tails to display chat and relay it to Discord.
+-- which the Runescape Dragonwilds Server Manager app tails to display chat and relay it to Discord.
 --
--- Requires UE4SS (experimental DragonWilds build) in RSDragonwilds/Binaries/Win64.
+-- Requires UE4SS (experimental Dragonwilds build) in RSDragonwilds/Binaries/Win64.
 --
 -- Output path: the app's installer rewrites the placeholder below with an absolute
 -- path to <install>/RSDragonwilds/Saved/dwsm-chat.jsonl, so this works regardless of which

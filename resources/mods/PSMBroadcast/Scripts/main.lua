@@ -14,7 +14,7 @@
 -- message is base64-encoded on the wire so quotes, newlines and unicode can never
 -- break the line format or the parser.
 --
--- Requires UE4SS (experimental DragonWilds build) in RSDragonwilds/Binaries/Win64.
+-- Requires UE4SS (experimental Dragonwilds build) in RSDragonwilds/Binaries/Win64.
 --
 -- Queue path: the app's installer rewrites the placeholder below with an absolute
 -- path to <install>/RSDragonwilds/Saved/dwsm-broadcast.jsonl, so this works regardless of which

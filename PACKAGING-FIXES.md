@@ -25,7 +25,7 @@ removes the File/Edit/View menu bar.
 
 4. **Error visibility** — if the local server can't start within 60s, the app now shows a
    clear error window instead of hanging on a blank page, and writes a diagnostic log to
-   `%APPDATA%/Runescape DragonWilds Server Manager/launcher.log` (Windows) or the equivalent user-data
+   `%APPDATA%/Runescape Dragonwilds Server Manager/launcher.log` (Windows) or the equivalent user-data
    dir on Linux.
 
 ## The database question
@@ -51,7 +51,7 @@ the first time (electron-builder extracts symlinked signing tools that need the 
 
 To test without making an installer:
 ```bash
-npm run pack          # -> release/win-unpacked/Runescape DragonWilds Server Manager.exe
+npm run pack          # -> release/win-unpacked/Runescape Dragonwilds Server Manager.exe
 ```
 
 ## If the app still won't open on a target machine

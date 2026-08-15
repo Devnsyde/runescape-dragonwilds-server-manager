@@ -1,11 +1,11 @@
 # Changelog
 
-All notable changes to Runescape DragonWilds Server Manager are documented here.
+All notable changes to Runescape Dragonwilds Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [1.0.0] — initial DragonWilds fork
+## [1.0.0] — initial Dragonwilds fork
 
-Initial forked release for Runescape: DragonWilds Server Manager. This version resets the
+Initial forked release for Runescape: Dragonwilds Server Manager. This version resets the
 public changelog to 1.0.0 and removes Palworld-specific release history; see the repo history
 for prior Pal-focused changes retained in this codebase.
 
@@ -25,7 +25,7 @@ for prior Pal-focused changes retained in this codebase.
 - **Keep RCON on without it being reset.** The **Admin** tab has a new **Enable RCON (legacy)**
   toggle. The game's RCON is off by default here and the manager rewrites `RCONEnabled` on every
   start, so anyone who set `RCONEnabled=true` by hand kept losing it (the workaround was making
-  `DragonWildsSettings.ini` read-only). Turn this on and the manager writes `RCONEnabled=True` plus the
+  `DragonwildsSettings.ini` read-only). Turn this on and the manager writes `RCONEnabled=True` plus the
   RCON port for you and stops resetting it — needed by tools like PalDefender that still rely on
   RCON. It stays deprecated by Pocketpair, but works today. (Reported in #17.)
 
@@ -242,7 +242,7 @@ for prior Pal-focused changes retained in this codebase.
   Windows-only mods working while self-hosting on Linux.
 - Pick a world's target platform (Windows or Linux) when you create it, independent of
   the machine you're running on.
--- **Schema mod support (removed)** — historical note: PalSchema support was previously available but has been removed for DragonWilds targets.
+-- **Schema mod support (removed)** — historical note: PalSchema support was previously available but has been removed for Dragonwilds targets.
   data-table/blueprint mods (the kind published on Nexus) straight from the Mods tab.
 - Fixed: the chat mod could show every message twice in the Chat tab and Discord relay.
 

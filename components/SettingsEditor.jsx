@@ -4,7 +4,7 @@ import { useTranslation, Trans } from "react-i18next";
 import { api, Icon, toast } from "@/components/ui";
 import IniEditor from "@/components/IniEditor";
 
-// Presets removed: DragonWilds does not support the Palworld tuning presets.
+// Presets removed: Dragonwilds does not support the Palworld tuning presets.
 const PRESETS = {};
 
 // Decode a raw ini value (string) into a typed JS value for the control.
@@ -38,7 +38,7 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
   const [exists, setExists] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeGroup, setActiveGroup] = useState(0);
-  // Search removed: settings surface is small for DragonWilds
+  // Search removed: settings surface is small for Dragonwilds
 
   const load = async () => {
     const r = await api(`/api/worlds/${worldId}/settings`);
@@ -117,7 +117,7 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
   };
 
   const applyPreset = (name) => {
-    // No-op: presets are not applicable for DragonWilds. Keep function for
+    // No-op: presets are not applicable for Dragonwilds. Keep function for
     // backwards compatibility in case UI still calls it.
     toast(t("editor.presetApplied", { name }), "info");
   };
@@ -143,7 +143,7 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
       )}
 
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
-        {/* Presets removed for DragonWilds */}
+        {/* Presets removed for Dragonwilds */}
         <div style={{ marginLeft: "auto", display: "flex", gap: "0.4rem" }}>
           <button className="btn btn-ghost" style={{ padding: "0.35rem 0.7rem", fontSize: "0.78rem" }} onClick={exportSettings}>
             <Icon name="upload" size={14} /> {t("editor.export")}

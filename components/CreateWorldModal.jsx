@@ -129,7 +129,7 @@ function NewInstall({ onBack, onClose, onDone }) {
         <Field label={t("create.adminPassword")} hint={t("create.adminPasswordHint")}>
           <input className="input" value={password} onChange={(e) => setPassword(e.target.value)} />
         </Field>
-        <Field label="OwnerId" hint="The owner's Player ID (required to run a DragonWilds dedicated server)">
+        <Field label="OwnerId" hint="The owner's Player ID (required to run a Dragonwilds dedicated server)">
           <input className="input" value={ownerId} onChange={(e) => setOwnerId(e.target.value)} placeholder="e.g. 7656119..." />
         </Field>
         <Field label="Default world name">

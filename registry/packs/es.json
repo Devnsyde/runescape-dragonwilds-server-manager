@@ -6,7 +6,7 @@
     "dir": "ltr",
     "schema": 1,
     "authors": [
-      "Runescape DragonWilds Server Manager"
+      "Runescape Dragonwilds Server Manager"
     ]
   },
   "strings": {
@@ -16,7 +16,7 @@
     "nav.info": "Información",
     "nav.downloads": "Descargas",
     "sidebar.management": "Gestión",
-    "app.name": "Runescape DragonWilds Server Manager",
+    "app.name": "Runescape Dragonwilds Server Manager",
     "app.updateAvailable": "Actualización disponible — v{{version}}",
     "app.upToDate": "actualizado",
     "action.toggleTheme": "Cambiar tema",
