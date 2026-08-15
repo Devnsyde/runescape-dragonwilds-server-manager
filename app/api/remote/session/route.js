@@ -10,7 +10,7 @@ export async function OPTIONS(req) {
   return ra.applyCors(new NextResponse(null, { status: 204 }), req);
 }
 
-// Enter a code. On success a `psm_remote` session cookie is set and the granted scope is
+// Enter a code. On success a `dwsm_remote` session cookie is set and the granted scope is
 // returned. Wrong codes are rate-limited per IP (5 tries → 60s lockout) — the only thing
 // making a 5-digit secret safe on a public tunnel.
 export async function POST(req, ctx) {

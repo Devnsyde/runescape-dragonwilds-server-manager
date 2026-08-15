@@ -25,7 +25,7 @@ removes the File/Edit/View menu bar.
 
 4. **Error visibility** — if the local server can't start within 60s, the app now shows a
    clear error window instead of hanging on a blank page, and writes a diagnostic log to
-   `%APPDATA%/Palworld Server Manager/launcher.log` (Windows) or the equivalent user-data
+   `%APPDATA%/Runescape DragonWilds Server Manager/launcher.log` (Windows) or the equivalent user-data
    dir on Linux.
 
 ## The database question
@@ -47,11 +47,11 @@ npm run dist:linux    # Linux AppImage + deb
 `dist:win` runs three steps: `next build` → `prepare-standalone` (assembles
 `dist-standalone/`) → `electron-builder`. On Windows, run the terminal **as Administrator**
 the first time (electron-builder extracts symlinked signing tools that need the privilege),
-or enable Developer Mode.
+ or enable Developer Mode.
 
 To test without making an installer:
 ```bash
-npm run pack          # -> release/win-unpacked/Palworld Server Manager.exe
+npm run pack          # -> release/win-unpacked/Runescape DragonWilds Server Manager.exe
 ```
 
 ## If the app still won't open on a target machine
@@ -73,7 +73,7 @@ NODE_OPTIONS (rejected), and passing it via ELECTRON_RUN_AS_NODE proved unreliab
 
 **Fix: removed the dependency entirely.** The SQLite adapter (`lib/sqlite.js`) now has two
 backends — Node's built-in `node:sqlite` and a pure-WASM `node-sqlite3-wasm` — behind one
-interface. The packaged app forces the WASM backend (`PALWORLD_SQLITE_BACKEND=wasm`), which
+interface. The packaged app forces the WASM backend (`PSM_SQLITE_BACKEND=wasm`), which
 needs NO experimental flag, NO native compilation, and NO specific Node/Electron version.
 It runs identically on any machine. The `.wasm` binary is explicitly bundled by
 `scripts/prepare-standalone.js`. Verified end-to-end with the exact packaged run command.

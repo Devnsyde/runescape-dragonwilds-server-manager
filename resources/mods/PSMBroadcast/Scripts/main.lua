@@ -1,11 +1,11 @@
--- PSMBroadcast — Palworld Server Manager on-screen broadcast
+-- DWSMBroadcast — DragonWild Server Manager on-screen broadcast
 --
 -- The reverse of PSMChatRelay: instead of reading chat out of the game, this mod
 -- reads broadcast messages the app *writes* and shows them to every player using the
 -- server's on-screen system announce.
 --
 -- The app appends one JSON line per message to
---   Pal/Saved/psm-broadcast.jsonl
+--   Pal/Saved/dwsm-broadcast.jsonl
 -- as {"b64":"<base64 utf-8 message>","at":<ms>}. This mod tails that file and, for
 -- each new line, shows it on every player's screen via
 --   PalGameStateInGame:BroadcastServerNotice(Message)
@@ -14,20 +14,20 @@
 -- message is base64-encoded on the wire so quotes, newlines and unicode can never
 -- break the line format or the parser.
 --
--- Requires UE4SS (experimental Palworld build) in Pal/Binaries/Win64.
+-- Requires UE4SS (experimental DragonWilds build) in RSDragonwilds/Binaries/Win64.
 --
 -- Queue path: the app's installer rewrites the placeholder below with an absolute
--- path to <install>/Pal/Saved/psm-broadcast.jsonl, so this works regardless of which
+-- path to <install>/RSDragonwilds/Saved/dwsm-broadcast.jsonl, so this works regardless of which
 -- directory UE4SS runs from. If installed by hand (placeholder left as-is) we fall
 -- back to relative candidates covering both known UE4SS layouts:
 --   * UE4SS 3.x  → working dir is Pal/Binaries/Win64/ue4ss  (3 levels up to Pal)
 --   * UE4SS 2.x  → working dir is Pal/Binaries/Win64         (2 levels up to Pal)
 
 local CANDIDATES = {
-    [[__PSM_QUEUE_PATH__]],               -- absolute, rewritten by the app installer
-    "../../../Saved/psm-broadcast.jsonl", -- UE4SS 3.x layout (cwd = Win64/ue4ss)
-    "../../Saved/psm-broadcast.jsonl",    -- UE4SS 2.x layout (cwd = Win64)
-    "./psm-broadcast.jsonl",              -- last resort: next to UE4SS
+    [[__DWSM_QUEUE_PATH__]],               -- absolute, rewritten by the app installer
+    "../../../Saved/dwsm-broadcast.jsonl", -- UE4SS 3.x layout (cwd = Win64/ue4ss)
+    "../../Saved/dwsm-broadcast.jsonl",    -- UE4SS 2.x layout (cwd = Win64)
+    "./dwsm-broadcast.jsonl",              -- last resort: next to UE4SS
 }
 
 local QUEUE_PATH = nil
@@ -44,7 +44,7 @@ local function resolve_path()
             if f then
                 f:close()
                 QUEUE_PATH = p
-                print(string.format("[PSMBroadcast] watching queue: %s\n", p))
+                print(string.format("[DWSMBroadcast] watching queue: %s\n", p))
                 return QUEUE_PATH
             end
         end
@@ -102,7 +102,7 @@ local function handle_line(line)
     ExecuteInGameThread(function()
         local ok, err = announce(text)
         if not ok then
-            print("[PSMBroadcast] announce failed: " .. tostring(err) .. "\n")
+            print("[DWSMBroadcast] announce failed: " .. tostring(err) .. "\n")
         end
     end)
 end
@@ -143,8 +143,8 @@ seek_to_end()
 -- the actual game call is marshalled onto the game thread inside handle_line.
 LoopAsync(1000, function()
     local ok, err = pcall(poll)
-    if not ok then print("[PSMBroadcast] poll error: " .. tostring(err) .. "\n") end
+            if not ok then print("[DWSMBroadcast] poll error: " .. tostring(err) .. "\n") end
     return false -- keep looping
 end)
 
-print("[PSMBroadcast] loaded — on-screen broadcast ready\n")
+print("[DWSMBroadcast] loaded — on-screen broadcast ready\n")

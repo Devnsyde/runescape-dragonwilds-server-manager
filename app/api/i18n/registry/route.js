@@ -18,7 +18,7 @@ export const runtime = "nodejs";
 // from pointing the app at arbitrary (e.g. internal) hosts at all.
 
 const REGISTRY_URL =
-  process.env.PAL_I18N_REGISTRY_URL ||
+  process.env.I18N_REGISTRY_URL ||
   "https://raw.githubusercontent.com/PrakashMandal-IV/palworld-server-manager/main/registry/index.json";
 const TTL = 30 * 60 * 1000; // re-fetch the index at most every 30 min
 const MAX_ENTRIES = 500;
@@ -96,7 +96,7 @@ function cmp(a, b) {
 
 // Cache the index like the version route caches the GitHub release lookup.
 const g = globalThis;
-if (!g.__PAL_I18N_REG) g.__PAL_I18N_REG = { at: 0, packs: null };
+if (!g.__APP_I18N_REG) g.__APP_I18N_REG = { at: 0, packs: null };
 
 export async function GET(req) {
   // The Refresh button passes ?force=1 to bypass the TTL cache and re-fetch the
@@ -104,7 +104,7 @@ export async function GET(req) {
   // to TTL minutes even when the user explicitly asks to refresh.
   let force = false;
   try { force = new URL(req.url).searchParams.get("force") === "1"; } catch {}
-  const cache = g.__PAL_I18N_REG;
+  const cache = g.__APP_I18N_REG;
   if (force || !cache.packs || Date.now() - cache.at > TTL) {
     try {
       const packs = validateIndex(await getText(REGISTRY_URL));

@@ -1,13 +1,13 @@
--- PSMChatRelay — Palworld Server Manager chat relay
+-- DWSMChatRelay — DragonWild Server Manager chat relay
 --
 -- Hooks the server's chat broadcast and appends every message as one JSON line to
---   Pal/Saved/psm-chat.jsonl
--- which the Palworld Server Manager app tails to display chat and relay it to Discord.
+--   Pal/Saved/dwsm-chat.jsonl
+-- which the Runescape DragonWilds Server Manager app tails to display chat and relay it to Discord.
 --
--- Requires UE4SS (experimental Palworld build) in Pal/Binaries/Win64.
+-- Requires UE4SS (experimental DragonWilds build) in RSDragonwilds/Binaries/Win64.
 --
 -- Output path: the app's installer rewrites the placeholder below with an absolute
--- path to <install>/Pal/Saved/psm-chat.jsonl, so this works regardless of which
+-- path to <install>/RSDragonwilds/Saved/dwsm-chat.jsonl, so this works regardless of which
 -- directory UE4SS runs from. If the mod is installed by hand (placeholder left as-is)
 -- we fall back to relative candidates covering both known UE4SS layouts:
 --   * UE4SS 3.x  → working dir is Pal/Binaries/Win64/ue4ss  (3 levels up to Pal)
@@ -15,10 +15,10 @@
 
 -- Candidate output paths, tried in order; first one that opens is cached.
 local CANDIDATES = {
-    [[__PSM_OUT_PATH__]],            -- absolute, rewritten by the app installer
-    "../../../Saved/psm-chat.jsonl", -- UE4SS 3.x layout (cwd = Win64/ue4ss)
-    "../../Saved/psm-chat.jsonl",    -- UE4SS 2.x layout (cwd = Win64)
-    "./psm-chat.jsonl",              -- last resort: next to UE4SS
+    [[__DWSM_OUT_PATH__]],            -- absolute, rewritten by the app installer
+    "../../../Saved/dwsm-chat.jsonl", -- UE4SS 3.x layout (cwd = Win64/ue4ss)
+    "../../Saved/dwsm-chat.jsonl",    -- UE4SS 2.x layout (cwd = Win64)
+    "./dwsm-chat.jsonl",              -- last resort: next to UE4SS
 }
 
 local OUT_PATH = nil
@@ -106,7 +106,7 @@ local function on_chat(self, chat_message_param)
     end)
     if not ok then
         -- Log (don't rethrow) so a struct change in a future build can't crash the server.
-        print("[PSMChatRelay] chat handler error: " .. tostring(err) .. "\n")
+        print("[DWSMChatRelay] chat handler error: " .. tostring(err) .. "\n")
     end
 end
 
@@ -114,4 +114,4 @@ RegisterHook("/Script/Pal.PalGameStateInGame:BroadcastChatMessage", on_chat)
 
 -- Resolve the output path eagerly so any path problems surface in UE4SS.log at load.
 resolve_out_path()
-print("[PSMChatRelay] loaded — hooking BroadcastChatMessage\n")
+print("[DWSMChatRelay] loaded — hooking BroadcastChatMessage\n")

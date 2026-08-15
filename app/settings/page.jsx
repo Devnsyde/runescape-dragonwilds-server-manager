@@ -5,7 +5,7 @@ import { useTranslation, Trans } from "react-i18next";
 import { useTheme } from "@/components/ThemeProvider";
 import { switchLanguage } from "@/lib/i18n/client";
 import { api, Icon, toast } from "@/components/ui";
-import PalNameMap from "@/components/PalNameMap";
+// Pal name mapping removed for RSDW — Pals are not a thing in DragonWilds.
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -300,11 +300,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="panel" style={{ padding: "1.3rem", marginBottom: "1rem" }}>
-        <h3 className="heading" style={{ fontSize: "1.05rem", marginTop: 0 }}>
-          <Icon name="activity" size={17} /> {t("palmap.globalTitle")}
-        </h3>
-        <p className="subtle" style={{ fontWeight: 600, fontSize: "0.78rem", margin: "0 0 0.8rem" }}>{t("palmap.globalDesc")}</p>
-        <PalNameMap scope="global" endpoint="/api/palnames" />
+        {/* Pal name mapping removed for DragonWilds */}
       </div>
       </>)}
 

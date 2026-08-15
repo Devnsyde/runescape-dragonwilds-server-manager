@@ -5,7 +5,7 @@ import { api, Icon, fmtTime, fmtBytes, StatusChip, toast } from "@/components/ui
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// Full-screen modal editor for PalWorldSettings.ini with version history.
+// Full-screen modal editor for DedicatedServer.ini with version history.
 // Every save/restore snapshots the file, so any change can be rolled back.
 // Guards unsaved edits when closing or restoring a version.
 export default function IniEditor({ world, running, onClose }) {

@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 //
 // Without this, boot() only ran when a page hit a heavier API route — so a hidden login
 // launch left everything idle until the user manually opened the window. boot() is
-// idempotent (guarded by globalThis.__PAL_BOOTED, every engine dedupes via its own
+// idempotent (guarded by a global boot sentinel, every engine dedupes via its own
 // global flag), so calling this repeatedly, or alongside the route-driven boot(), is a
 // harmless no-op.
 export async function GET() {

@@ -60,7 +60,7 @@ let launchedHidden = false;
 // This must run before app is ready and before anything reads a user path.
 // ---------------------------------------------------------------------------
 if (process.env.PORTABLE_EXECUTABLE_DIR) {
-  const portableData = path.join(process.env.PORTABLE_EXECUTABLE_DIR, "PSM-Data");
+  const portableData = path.join(process.env.PORTABLE_EXECUTABLE_DIR, "DWSM-Data");
   try { fs.mkdirSync(portableData, { recursive: true }); } catch {}
   try { app.setPath("userData", portableData); } catch {}
 }
@@ -119,7 +119,7 @@ function logToFile(msg) {
 // so we manage a .desktop file under ~/.config/autostart ourselves. (No macOS
 // build is shipped, so it's left untouched with a best-effort fallback.)
 // ---------------------------------------------------------------------------
-const LINUX_AUTOSTART_FILE = path.join(os.homedir(), ".config", "autostart", "com.palworld.servermanager.desktop");
+const LINUX_AUTOSTART_FILE = path.join(os.homedir(), ".config", "autostart", "com.dwsm.servermanager.desktop");
 
 function autostartConfigPath() {
   return path.join(dataDir(), "autostart.json");
@@ -152,7 +152,7 @@ function applyAutostart(enabled) {
         const entry = [
           "[Desktop Entry]",
           "Type=Application",
-          "Name=Palworld Server Manager",
+          "Name=Runescape DragonWilds Server Manager",
           `Exec="${exe}" --hidden`,
           "X-GNOME-Autostart-enabled=true",
           "",
@@ -264,7 +264,7 @@ async function refreshTrayMenu() {
     : [{ label: "No worlds yet", enabled: false }];
 
   const menu = Menu.buildFromTemplate([
-    { label: "Open Palworld Server Manager", click: () => showWindow() },
+    { label: "Open RSDW Server Manager", click: () => showWindow() },
     { type: "separator" },
     { label: "Worlds", enabled: false },
     ...worldItems,
@@ -277,10 +277,14 @@ async function refreshTrayMenu() {
 function createTray() {
   if (tray) return true;
   try {
+    // Prefer the provided icon files (public/icon.ico / public/icon.png). If
+    // those were replaced by the user in the repo's public/ folder they will be
+    // used here when running from source; packaged apps use the embedded copy.
     let img = nativeImage.createFromPath(trayIconPath());
+    if (img.isEmpty()) img = nativeImage.createFromPath(path.join(__dirname, "..", "public", process.platform === "win32" ? "icon.ico" : "icon.png"));
     if (img.isEmpty()) img = nativeImage.createEmpty();
     tray = new Tray(img);
-    tray.setToolTip("Palworld Server Manager");
+  tray.setToolTip("RSDW Server Manager");
     // Left-click opens the app (Windows/Linux convention); the menu is right-click.
     tray.on("click", () => showWindow());
     refreshTrayMenu();
@@ -311,18 +315,18 @@ function startNextServer() {
     // Loopback unless the user enabled same-network (LAN) access in Remote Access.
     HOSTNAME: readBindHost(),
     // The desktop app's proof-of-trust for Remote Access (see ADMIN_TOKEN above).
-    PSM_ADMIN_TOKEN: ADMIN_TOKEN,
+    DWSM_ADMIN_TOKEN: ADMIN_TOKEN,
     NODE_ENV: "production",
-    PALWORLD_MANAGER_DATA_DIR: dataDir(),
+    APP_MANAGER_DATA_DIR: dataDir(),
     // Expose the installed app version to the server so the UI can check for updates.
-    PALWORLD_APP_VERSION: app.getVersion(),
+    APP_MANAGER_APP_VERSION: app.getVersion(),
     // CRITICAL: make the Electron binary behave as plain Node for this child,
     // so it can run the Next standalone server.js.
     ELECTRON_RUN_AS_NODE: "1",
     // Use the pure-WASM SQLite backend, which needs no experimental flag and no
     // specific Node/Electron version — this is what makes the packaged app start
     // reliably regardless of the Electron-bundled Node version.
-    PALWORLD_SQLITE_BACKEND: "wasm",
+    PSM_SQLITE_BACKEND: "wasm",
     NODE_OPTIONS: `${process.env.NODE_OPTIONS || ""} --no-warnings`.trim(),
   };
 
@@ -411,7 +415,7 @@ function createWindow() {
     minWidth: 940,
     minHeight: 640,
     backgroundColor: "#1e1f22",
-    title: "Palworld Server Manager",
+    title: "RSDW Server Manager",
     autoHideMenuBar: true,   // hide File/Edit/View menu bar (Discord-like)
     icon: isDev
       ? path.join(__dirname, "..", "public", process.platform === "win32" ? "icon.ico" : "icon.png")
@@ -437,7 +441,7 @@ function createWindow() {
   // It's HttpOnly (invisible to page JS) and only ever lives in this Electron session —
   // a remote guest's browser has no way to obtain it.
   mainWindow.webContents.session.cookies
-    .set({ url: `http://127.0.0.1:${PORT}`, name: "psm_admin", value: ADMIN_TOKEN, httpOnly: true, sameSite: "lax" })
+    .set({ url: `http://127.0.0.1:${PORT}`, name: "dwsm_admin", value: ADMIN_TOKEN, httpOnly: true, sameSite: "lax" })
     .catch(() => {})
     .finally(() => { if (mainWindow) mainWindow.loadURL(url); });
 
@@ -465,7 +469,7 @@ function showErrorWindow(message) {
   if (mainWindow) return;
   mainWindow = new BrowserWindow({
     width: 720, height: 420, backgroundColor: "#1e1f22",
-    autoHideMenuBar: true, title: "Palworld Server Manager",
+    autoHideMenuBar: true, title: "Runescape: DragonWilds Server Manager",
   });
   Menu.setApplicationMenu(null);
   const html = `<!doctype html><html><body style="font-family:Segoe UI,system-ui,sans-serif;background:#1e1f22;color:#f2f3f5;padding:40px;line-height:1.6">
@@ -480,7 +484,7 @@ function showErrorWindow(message) {
 function main() {
   app.whenReady().then(async () => {
     // Ensures Windows uses our icon (not the default Electron one) in the taskbar.
-    if (process.platform === "win32") app.setAppUserModelId("com.palworld.servermanager");
+  if (process.platform === "win32") app.setAppUserModelId("com.dwsm.servermanager");
     // Keep the OS from suspending this process (and starving the game server it hosts)
     // while the manager sits minimized or in the tray (issue #29). 'prevent-app-suspension'
     // keeps the system active but still lets the display sleep. Best-effort.

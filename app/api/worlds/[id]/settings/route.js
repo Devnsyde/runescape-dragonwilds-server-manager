@@ -14,7 +14,7 @@ export const runtime = "nodejs";
 // a tunnel like playit.gg can be pointed to). Everything else stays app-controlled.
 const MANAGED = new Set([
   "RESTAPIPort", "RESTAPIEnabled", "RCONPort", "RCONEnabled",
-  "AdminPassword", "ServerPassword",
+  "AdminPassword", "WorldPassword", "OwnerId", "ServerName", "DefaultWorldName",
 ]);
 
 export async function GET(req, { params }) {
@@ -59,12 +59,15 @@ export async function POST(req, { params }) {
   // PublicIP are deliberately left to whatever the editor set (see MANAGED above).
   merged.RESTAPIPort = String(w.rest_api_port);
   merged.RESTAPIEnabled = w.rest_api_enabled ? "True" : "False";
-  merged.AdminPassword = `"${w.admin_password || ""}"`;
-  merged.ServerPassword = `"${w.server_password || ""}"`;
+  merged.AdminPassword = w.admin_password || "";
+  merged.WorldPassword = w.server_password || "";
+  merged.OwnerId = w.owner_id || "";
+  merged.ServerName = w.display_name || "";
+  merged.DefaultWorldName = w.default_world_name || "";
   if (w.rcon_enabled) { merged.RCONPort = String(w.rcon_port); merged.RCONEnabled = "True"; }
   else merged.RCONEnabled = "False";
 
   const path = ini.writeSettings(w.install_dir, merged, w.platform);
-  dbm.logEvent(w.world_id, "settings", `Saved ${Object.keys(changed).length} change(s) to PalWorldSettings.ini (restart to apply)`);
+  dbm.logEvent(w.world_id, "settings", `Saved ${Object.keys(changed).length} change(s) to DedicatedServer.ini (restart to apply)`);
   return NextResponse.json({ ok: true, path, written: Object.keys(merged).length });
 }

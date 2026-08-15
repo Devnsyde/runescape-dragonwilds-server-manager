@@ -21,6 +21,9 @@ export default function AdminPanel({ world, running, onChange }) {
   const [rconOn, setRconOn] = useState(!!world.rcon_enabled);
   const [saving, setSaving] = useState(false);
   const [installDir, setInstallDir] = useState(world.install_dir || "");
+  const [ownerId, setOwnerId] = useState(world.owner_id || "");
+  const [defaultWorldName, setDefaultWorldName] = useState(world.default_world_name || "");
+  // No-op: touch file for dependency tracking.
   const [movingDir, setMovingDir] = useState(false);
   const [ports, setPorts] = useState({ game_port: world.game_port, query_port: world.query_port, rest_api_port: world.rest_api_port, rcon_port: world.rcon_port });
   const [savingPorts, setSavingPorts] = useState(false);
@@ -75,6 +78,7 @@ export default function AdminPanel({ world, running, onChange }) {
           extra_args: extraArgs, env_vars: envTextToObject(envVars),
                 autostart: autostart ? 1 : 0, crash_guard: crashGuard ? 1 : 0, community_server: community ? 1 : 0,
                 legacy_perf_flags: legacyPerf ? 1 : 0, rcon_enabled: rconOn ? 1 : 0,
+                owner_id: ownerId || null, default_world_name: defaultWorldName || null,
         },
       });
       toast(t("admin.profileSaved"), "success");
@@ -133,6 +137,14 @@ export default function AdminPanel({ world, running, onChange }) {
           <div style={{ gridColumn: "1 / -1" }}>
             <label className="label">{t("admin.extraArgs")}</label>
             <input className="input" value={extraArgs} onChange={(e) => setExtraArgs(e.target.value)} placeholder="e.g. -NoAsyncLoadingThread" />
+          </div>
+          <div>
+            <label className="label">OwnerId</label>
+            <input className="input" value={ownerId} onChange={(e) => setOwnerId(e.target.value)} placeholder="Owner's Player ID (required)" />
+          </div>
+          <div>
+            <label className="label">Default world name</label>
+            <input className="input" value={defaultWorldName} onChange={(e) => setDefaultWorldName(e.target.value)} placeholder="DefaultWorldName" />
           </div>
           <div style={{ gridColumn: "1 / -1" }}>
             <label className="label">{t("admin.envVars")}</label>
@@ -239,7 +251,7 @@ export default function AdminPanel({ world, running, onChange }) {
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <input className="input" value={installDir} onChange={(e) => setInstallDir(e.target.value)}
             disabled={running || movingDir}
-            placeholder={isElectron ? t("create.browseFolderPlaceholder") : "e.g. D:\\SteamLibrary\\steamapps\\common\\PalServer"} />
+            placeholder={isElectron ? t("create.browseFolderPlaceholder") : "e.g. D:\\SteamLibrary\\steamapps\\common\\GameServer"} />
           <button className="btn btn-ghost" onClick={pickDir} disabled={running || movingDir}><Icon name="folder" /> {t("common.browse")}</button>
           <button className="btn btn-primary" onClick={changeInstallDir}
             disabled={running || movingDir || !installDir.trim() || installDir.trim() === world.install_dir}>

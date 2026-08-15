@@ -1,6 +1,6 @@
-# Palworld Server Manager
+# Runescape DragonWilds Server Manager
 
-A desktop app for Windows and Linux that makes running one or more **Palworld dedicated
+A desktop app for Windows and Linux that makes running one or more **Runescape DragonWilds dedicated
 servers** simple — no command line, no editing config files by hand. Install it, point it at
 a server (new or existing), and manage everything from a clean interface.
 
@@ -24,7 +24,7 @@ a server (new or existing), and manage everything from a clean interface.
 
 ## What it does
 
-- **Provision new servers** via SteamCMD, or **adopt an existing** Palworld dedicated
+- **Provision new servers** via SteamCMD, or **adopt an existing** Runescape DragonWilds dedicated
   server install (it keeps your world, settings, and admin password).
 - **Cross-platform hosting** — provision a **Windows** or **Linux** server regardless of
   the host OS, and run a Windows-target server on a Linux machine through **Wine** (per-world
@@ -33,8 +33,8 @@ a server (new or existing), and manage everything from a clean interface.
   on Windows.)
 - **Start / stop / restart / update** each world with one click. A crash guardian can
   automatically restart a server that goes down, and an optional **auto-update** keeps a
-  world on the latest Palworld build — warning players in-game before it restarts to apply.
-- **Full settings editor** — every option from `PalWorldSettings.ini` (100+ settings)
+  world on the latest Runescape DragonWilds build — warning players in-game before it restarts to apply.
+-- **Full settings editor** — every option from `DragonWildsSettings.ini` (100+ settings)
   grouped into readable sections, with search, per-field reset, and community-tested
   presets. Only the settings you change are written, so nothing else is disturbed.
 - **Players** — see who's online; kick / ban / unban through the official REST API.
@@ -43,7 +43,7 @@ a server (new or existing), and manage everything from a clean interface.
 - **Backups** — take, restore, and schedule world backups.
 - **Schedule** — automatic restarts / backups on an interval or at a set time.
 - **Mods** — import and toggle Steam Workshop mods, install **UE4SS**, and install
-  **PalSchema** plus its JSON content mods (the kind published on Nexus) — one-click
+  **DragonSchema** plus its JSON content mods (the kind published on Nexus) — one-click
   framework install, import, enable/disable, and remove, all from the Mods tab.
 - **Chat & Broadcast** — read in-game chat live and send announcements to players.
 - **Discord notifications** — post server events (start, stop, restart, crash, backup,
@@ -68,14 +68,14 @@ a server (new or existing), and manage everything from a clean interface.
 
 ## Download
 
-Grab the latest installer from the
-[**Releases**](https://github.com/PrakashMandal-IV/palworld-server-manager/releases/latest) page:
 
-- **Windows (installer):** `Palworld Server Manager Setup <version>.exe`
-- **Windows (portable, no install):** `PalworldServerManager-<version>-portable.exe` — runs
+Grab the latest installer from the Releases page for this project.
+
+- **Windows (installer):** `Runescape DragonWilds Server Manager Setup <version>.exe`
+- **Windows (portable, no install):** `RunescapeDragonWildsServerManager-<version>-portable.exe` — runs
   without installing and keeps all its data in a `PSM-Data` folder next to the `.exe`, so
   you can carry it (and your worlds) on a USB stick or between PCs.
-- **Linux:** `Palworld Server Manager-<version>.AppImage`
+- **Linux:** `Runescape DragonWilds Server Manager-<version>.AppImage`
 
 > The Windows builds are not yet code-signed, so SmartScreen may show an
 > "unrecognized app" warning. Click **More info → Run anyway** to proceed.
@@ -87,7 +87,7 @@ Grab the latest installer from the
 1. **Install** the app using the provided installer (Windows) or AppImage (Linux).
 2. On first launch you'll see **Your worlds**. Click **New world** to create one, or use
    **Use existing** to adopt a server you already have (for example under
-   `Steam\steamapps\common\PalServer`).
+	  `Steam\steamapps\common\GameServer`).
 3. Once a world is listed, click **Start**. The first launch may take a moment while the
    server initializes.
 4. Open a world and use the tabs — Overview, Players, Broadcast, Chat, Console, Settings,
@@ -104,7 +104,7 @@ join with:
 127.0.0.1:<game port>     (e.g. 127.0.0.1:8211)
 ```
 
-In Palworld: **Join Multiplayer → Connect via IP** and paste the address.
+In Runescape DragonWilds: **Join Multiplayer → Connect via IP** and paste the address.
 
 ### Letting friends join over the internet
 By default your server is only reachable on your local network. To open it up you can port
@@ -116,17 +116,17 @@ section. This is a recommendation, not a requirement.
 
 ## Dedicated vs community servers
 
-A **community server** is the same as a dedicated server, except it also appears in
-Palworld's in-game public server browser so anyone can find and join it. It's toggled with
+ A **community server** is the same as a dedicated server, except it also appears in
+ the game's in-game public server browser so anyone can find and join it. It's toggled with
 a launch flag. A **private/dedicated** server is joined by IP only. Either way, the app manages it the same — toggle it per world in the Admin tab.
 
 ---
 
 ## A note on settings
 
-Palworld only applies server settings **when the server boots**, so after changing settings
+ The game only applies server settings **when the server boots**, so after changing settings
 you must **restart** the world for them to take effect. The app writes a minimal config
-(only what you change), matching how Palworld itself stores settings — so your existing
+(only what you change), matching how RuneScape DragonWilds game server itself stores settings — so your existing
 values and any in-game choices are preserved.
 
 Ports, the REST API, and the admin password are managed by the app automatically and aren't
@@ -139,11 +139,11 @@ shown in the settings editor, so they can't be broken by accident.
 The app stores its registry (your list of worlds and their metadata) in your user data
 folder:
 
-- **Windows (installer):** `%APPDATA%\palworld-server-manager\`
-- **Windows (portable):** a `PSM-Data` folder next to the portable `.exe`
-- **Linux:** `~/.config/palworld-server-manager/`
+-- **Windows (installer):** `%APPDATA%\\runescape-dragonwilds-server-manager\\`
+-- **Windows (portable):** a `PSM-Data` folder next to the portable `.exe`
+-- **Linux:** `~/.config/runescape-dragonwilds-server-manager/`
 
-Your actual Palworld worlds, saves, and settings stay in each server's own install folder —
+Your actual Runescape DragonWilds worlds, saves, and settings stay in each server's own install folder —
 the app never moves them.
 
 ---
@@ -151,7 +151,21 @@ the app never moves them.
 ## Requirements
 
 - Windows 10/11 (64-bit) or a modern 64-bit Linux distribution.
-- Enough disk space for the Palworld dedicated server and its saves.
+- Enough disk space for the Runescape DragonWilds dedicated server and its saves.
+
+## Future tasks (not for right now)
+
+These are potential improvements we may add later; they are intentionally left as future work.
+
+- Firewall automation: one-click creation of Windows firewall rules for the server port (guarded, requires admin).
+- Packaging CI & release signing: GitHub Actions workflow to build releases and support code-signing (env-driven cert/PFX).
+- "Full setup" wizard: bundle SteamCMD download, server install, config write, and firewall into a single guided action with progress logs.
+- Granular setup actions: expose "Firewall only" and "Save config only" UI options for finer control during setup.
+- Install verification checks: file-level sanity checks (exe, dwmapi.dll, UE4SS layout) with actionable help links.
+- One-click prerequisites installer or clear UI prompts to run bundled prereq tools (DirectX / VC redistributables).
+- Exportable setup logs for troubleshooting and support.
+- Small helper scripts (PowerShell/Python) for offline/manual install or advanced scenarios.
+- UX polish: better "register existing server exe" flow and clearer error messaging during setup.
 - For provisioning new servers: an internet connection (SteamCMD downloads the server).
 
 ---

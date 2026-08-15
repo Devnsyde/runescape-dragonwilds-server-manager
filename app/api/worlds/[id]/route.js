@@ -97,7 +97,7 @@ export async function PATCH(req, { params }) {
     dbm.logEvent(params.id, "settings", `Install folder changed to ${info.installDir}`);
   }
 
-  const allowed = ["display_name", "admin_password", "server_password", "autostart", "crash_guard", "rest_api_enabled", "extra_args", "env_vars", "wine_binary", "wine_prefix", "wine_launch_flags", "game_port", "query_port", "rest_api_port", "rcon_port", "rcon_enabled", "community_server", "mods_enabled", "discord_webhook", "notify_events", "discord_relay_chat", "discord_webhooks", "notify_templates", "warn_enabled", "warn_lead_minutes", "warn_interval_minutes", "warn_message", "legacy_perf_flags"];
+  const allowed = ["display_name", "admin_password", "server_password", "autostart", "crash_guard", "rest_api_enabled", "extra_args", "env_vars", "wine_binary", "wine_prefix", "wine_launch_flags", "game_port", "query_port", "rest_api_port", "rcon_port", "rcon_enabled", "community_server", "mods_enabled", "discord_webhook", "notify_events", "discord_relay_chat", "discord_webhooks", "notify_templates", "warn_enabled", "warn_lead_minutes", "warn_interval_minutes", "warn_message", "legacy_perf_flags", "owner_id", "default_world_name"];
 
   const clean = {};
   for (const k of allowed) if (k in patch) clean[k] = patch[k];
@@ -115,6 +115,10 @@ export async function PATCH(req, { params }) {
     clean.env_vars = JSON.stringify(clean.env_vars);
   }
   if ("wine_binary" in clean && !String(clean.wine_binary).trim()) clean.wine_binary = "wine";
+
+  // Owner and default world name are saved directly as text fields
+  if ("owner_id" in patch) clean.owner_id = patch.owner_id;
+  if ("default_world_name" in patch) clean.default_world_name = patch.default_world_name;
   // (running-state guard, following the existing convention used for ports/install_dir):
   // reject changing wine_prefix or wine_binary while the world is running, since that's a live-only setting
   // that wouldn't apply until restart anyway and could confuse the running process's state

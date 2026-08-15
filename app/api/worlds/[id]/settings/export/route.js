@@ -13,9 +13,14 @@ export async function GET(req, { params }) {
   if (denied) return denied;
   const s = ini.readSettings(w.install_dir, w.platform);
   // strip managed/identity keys so shared settings are portable
-  const MANAGED = new Set(["PublicPort","RESTAPIPort","RESTAPIEnabled","RCONPort","RCONEnabled","AdminPassword","ServerPassword","PublicIP"]);
+  const MANAGED = new Set(["PublicPort","RESTAPIPort","RESTAPIEnabled","RCONPort","RCONEnabled","AdminPassword","WorldPassword","OwnerId","ServerName","DefaultWorldName","PublicIP"]);
   const portable = {};
   for (const [k, v] of Object.entries(s.options)) if (!MANAGED.has(k)) portable[k] = v;
+  portable.AdminPassword = w.admin_password || "";
+  portable.WorldPassword = w.server_password || "";
+  portable.OwnerId = w.owner_id || "";
+  portable.ServerName = w.display_name || "";
+  portable.DefaultWorldName = w.default_world_name || "";
 
   const zip = new AdmZip();
   zip.addFile("PalWorldSettings.portable.ini", Buffer.from(ini.serializeOptionSettings(portable), "utf8"));

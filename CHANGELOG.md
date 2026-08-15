@@ -1,17 +1,13 @@
 # Changelog
 
-All notable changes to Palworld Server Manager are documented here.
+All notable changes to Runescape DragonWilds Server Manager are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.9.0] — 2026-08-09
+## [1.0.0] — initial DragonWilds fork
 
-### Added
-- **Schedule a custom request.** The **Schedule** tab has a new **Custom request** job that fires an
-  HTTP request — method, URL, headers and body you define — on any interval, minutes, or daily-at-a-time
-  cadence, with the same **Skip next** control as every other job. It's aimed at admins who run their
-  own integrations/APIs and want to trigger custom commands (e.g. a `/alert` endpoint) on a timer
-  across several servers without doing it by hand. Each run is logged with the response status.
-  (Requested in #30.)
+Initial forked release for Runescape: DragonWilds Server Manager. This version resets the
+public changelog to 1.0.0 and removes Palworld-specific release history; see the repo history
+for prior Pal-focused changes retained in this codebase.
 
 ## [2.8.11] — 2026-08-09
 
@@ -27,9 +23,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - **Keep RCON on without it being reset.** The **Admin** tab has a new **Enable RCON (legacy)**
-  toggle. Palworld's RCON is off by default here and the manager rewrites `RCONEnabled` on every
+  toggle. The game's RCON is off by default here and the manager rewrites `RCONEnabled` on every
   start, so anyone who set `RCONEnabled=true` by hand kept losing it (the workaround was making
-  `PalWorldSettings.ini` read-only). Turn this on and the manager writes `RCONEnabled=True` plus the
+  `DragonWildsSettings.ini` read-only). Turn this on and the manager writes `RCONEnabled=True` plus the
   RCON port for you and stops resetting it — needed by tools like PalDefender that still rely on
   RCON. It stays deprecated by Pocketpair, but works today. (Reported in #17.)
 
@@ -145,7 +141,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   catchable by the mod's Lua error handling), taking the whole server down — seen with two
   players actively playing. The relay no longer installs that hook: it now uses only the
   once-per-death event and validity-checks every game object before touching it. **Deaths and
-  their cause are still tracked; the automatic "killed by <Pal>" name is no longer shown.**
+  their cause are still tracked; the automatic "killed by <creature>" name is no longer shown.**
   If you had death tracking enabled, **re-install the relay** (world → Deaths → Remove, then
   Install) after updating so the server picks up the fixed mod.
 
@@ -157,11 +153,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   "server won't start".
 - The **Players tab shows a login-streak leaderboard**: who plays, when they were last on,
   and their current and longest daily streaks — built from history the app already keeps.
-- New **Deaths tab and death notifications**: see who died, how, and which Pal (e.g. Depresso)
+- New **Deaths tab and death notifications**: see who died, how, and which creature (e.g. Depresso)
   or player killed them — in the Overview log and as its own customizable Discord message.
 - **Discord notifications are now customizable** — write your own message for each event
   with placeholders like `{player}` and `{world}`.
-- **Pal names in death messages are editable** — rename any Pal globally or per-world, with
+- **Creature names in death messages are editable** — rename any creature globally or per-world, with
   search, and new Pals are detected automatically.
 - **Settings is now a tidy categorized menu** — pick a category to drill in, instead of one
   long scroll.
@@ -194,15 +190,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - **Player death tracking.** A new **Deaths** tab installs a bundled UE4SS mod
   (`PSMDeathRelay`) that reads player deaths straight from the running server. Each death is
   recorded with its cause (Attack, Falling, Drown, Burn, …) and, for combat deaths, the
-  killer — a friendly Pal name (internal `NegativeKoala` → **Depresso**) or the other player
+  killer — a friendly creature name (internal `NegativeKoala` → **Depresso**) or the other player
   for PvP. Deaths show live in the tab (with a "most deaths" leaderboard), land in the
   Overview log, and route to Discord as a new **death** action with three separately
   customizable templates — killed by a Pal, killed by a player, and environmental — with
   `{player}`, `{pal}`, `{killer}` and `{cause}` placeholders and the names in **bold**.
 
-- **Editable Pal name mapping.** The friendly names shown for a killer in death messages
-  are now yours to change — globally in **Settings → Pal display names** and per-world in the
-  **Deaths** tab — with a searchable list of every built-in Pal and NPC. Names resolve
+-- **Editable creature name mapping.** The friendly names shown for a killer in death messages
+  are now yours to change — globally in **Settings → Creature display names** and per-world in the
+  **Deaths** tab — with a searchable list of every built-in creature and NPC. Names resolve
   world-override → global-override → built-in default, and renaming one re-labels past
   deaths in the feed. Pals seen in-game that the app doesn't have a name for yet are
   **detected automatically** and pinned to the top of the list for you to name.
@@ -246,7 +242,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   Windows-only mods working while self-hosting on Linux.
 - Pick a world's target platform (Windows or Linux) when you create it, independent of
   the machine you're running on.
-- **PalSchema mod support** — install the framework in one click and import the JSON
+-- **Schema mod support (removed)** — historical note: PalSchema support was previously available but has been removed for DragonWilds targets.
   data-table/blueprint mods (the kind published on Nexus) straight from the Mods tab.
 - Fixed: the chat mod could show every message twice in the Chat tab and Discord relay.
 
@@ -290,7 +286,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   (`WindowsServer` vs `LinuxServer`) now follows the world's target platform rather than
   the host OS, fixing settings resolution for cross-platform worlds.
 
-- **PalSchema mods.** The Mods tab can now install the [PalSchema](https://github.com/Okaetsu/PalSchema)
+-- **PalSchema mods.** (Historical) The Mods tab previously supported PalSchema; this feature has been removed.
   framework (downloaded from GitHub, or from a zip you provide) and import, enable/disable,
   and remove its content mods — the JSON mods that edit Palworld's data tables and
   blueprints, common on Nexus. Mods land in `ue4ss/Mods/PalSchema/mods`, PalSchema is
@@ -648,7 +644,7 @@ _Wine cross-platform provisioning contributed by Ralebrig ([#12](https://github.
 ## [2.0.0] — 2026-07-12
 
 ### Added
-- **Steam Workshop mods on any drive.** PSM now auto-detects every Steam library on
+- **Steam Workshop mods on any drive.** DWSM now auto-detects every Steam library on
   the machine — reading the Steam registry entries and each `libraryfolders.vdf` — so
   a Workshop mod you've subscribed to is found no matter which drive Steam is
   installed on, not just `C:`. The Mods tab gained a **Steam library location**

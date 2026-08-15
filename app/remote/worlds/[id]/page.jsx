@@ -7,7 +7,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { api, Icon, StatusChip, fmtUptime, fmtTime, toast } from "@/components/ui";
-import PlayersPanel from "@/components/PlayersPanel";
+// Players remote view disabled for DragonWilds (no remote player API)
+// import PlayersPanel from "@/components/PlayersPanel";
 import LogsPanel from "@/components/LogsPanel";
 import SettingsEditor from "@/components/SettingsEditor";
 import BackupsPanel from "@/components/BackupsPanel";
@@ -15,18 +16,19 @@ import SchedulePanel from "@/components/SchedulePanel";
 import MapPanel from "@/components/MapPanel";
 import ModsPanel from "@/components/ModsPanel";
 import Ue4ssPanel from "@/components/Ue4ssPanel";
-import PalSchemaPanel from "@/components/PalSchemaPanel";
+// PalSchemaPanel removed: reference deleted
 import AdminPanel from "@/components/AdminPanel";
-import ChatPanel from "@/components/ChatPanel";
-import DeathsPanel from "@/components/DeathsPanel";
+// Chat remote view disabled for DragonWilds
+// import ChatPanel from "@/components/ChatPanel";
+// DeathsPanel removed for DragonWilds
 import BroadcastPanel from "@/components/BroadcastPanel";
-import DiscordPanel from "@/components/DiscordPanel";
-import DiscordBotPanel from "@/components/DiscordBotPanel";
+// Discord remote view disabled for DragonWilds
+// import DiscordPanel from "@/components/DiscordPanel";
+// import DiscordBotPanel from "@/components/DiscordBotPanel";
 
 const ALL_TABS = [
   { id: "overview", labelKey: "world.tab.overview", icon: "grid" },
-  { id: "players", labelKey: "world.tab.players", icon: "users" },
-  { id: "deaths", labelKey: "world.tab.deaths", icon: "activity" },
+  // Players and Deaths tabs removed for DragonWilds (unsupported by the game)
   { id: "map", labelKey: "world.tab.map", icon: "map" },
   { id: "broadcast", labelKey: "world.tab.broadcast", icon: "bell" },
   { id: "chat", labelKey: "world.tab.chat", icon: "chat" },
@@ -35,8 +37,9 @@ const ALL_TABS = [
   { id: "backups", labelKey: "world.tab.backups", icon: "download" },
   { id: "schedule", labelKey: "world.tab.schedule", icon: "clock" },
   { id: "mods", labelKey: "world.tab.mods", icon: "shield" },
-  { id: "discord", labelKey: "world.tab.discord", icon: "bell" },
-  { id: "discordbot", labelKey: "world.tab.discordBot", icon: "chat" },
+  // Discord tabs removed for DragonWilds
+  // { id: "discord", labelKey: "world.tab.discord", icon: "bell" },
+  // { id: "discordbot", labelKey: "world.tab.discordBot", icon: "chat" },
   { id: "admin", labelKey: "world.tab.admin", icon: "settings" },
 ];
 const ACTION_TOAST = { start: "toast.worldStarted", stop: "toast.worldStopped", restart: "toast.worldRestarted" };
@@ -155,7 +158,15 @@ export default function RemoteWorldDetail() {
         {tab === "players" && <PlayersPanel worldId={id} players={live?.players} onChange={load} />}
         {tab === "deaths" && <DeathsPanel worldId={id} running={running} onGoToUe4ss={() => goTo("mods")} onGoToDiscord={() => goTo("discord")} />}
         {tab === "map" && <MapPanel players={live?.players} running={running} />}
-        {tab === "broadcast" && <BroadcastPanel worldId={id} running={running} onGoToUe4ss={() => goTo("mods")} />}
+        {tab === "broadcast" && (
+          <div className="panel-inset">
+            <div style={{ fontWeight: 800, fontSize: "0.9rem" }}>Broadcasts unavailable</div>
+            <p className="subtle" style={{ fontWeight: 600, fontSize: "0.78rem" }}>
+              The on-screen broadcast feature is DragonWilds-specific and requires a community UE4SS mod which
+              is not bundled. This panel has been disabled to avoid offering unsupported functionality.
+            </p>
+          </div>
+        )}
         {tab === "chat" && <ChatPanel worldId={id} running={running} onGoToUe4ss={() => goTo("mods")} />}
         {tab === "console" && <LogsPanel worldId={id} />}
         {tab === "settings" && <SettingsEditor worldId={id} world={world} running={running} onGoToAdmin={() => goTo("admin")} />}
@@ -168,10 +179,7 @@ export default function RemoteWorldDetail() {
               <ModsPanel worldId={id} running={running} />
             </div>
             <div style={{ borderTop: "1px solid var(--line)", paddingTop: "1.4rem" }}>
-              <Ue4ssPanel worldId={id} running={running} />
-            </div>
-            <div style={{ borderTop: "1px solid var(--line)", paddingTop: "1.4rem" }}>
-              <PalSchemaPanel worldId={id} world={world} running={running} />
+            <Ue4ssPanel worldId={id} running={running} />
             </div>
           </div>
         )}

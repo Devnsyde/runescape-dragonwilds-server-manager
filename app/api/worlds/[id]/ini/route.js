@@ -7,7 +7,7 @@ const ra = require("@/lib/remoteauth");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// GET: the raw PalWorldSettings.ini text for the in-app editor.
+// GET: the raw DedicatedServer.ini text for the in-app editor.
 export async function GET(req, { params }) {
   const w = dbm.getWorld(params.id);
   if (!w) return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
@@ -36,6 +36,6 @@ export async function POST(req, { params }) {
   const path = ini.writeRawSettings(w.install_dir, content, w.platform);
   // Also snapshot the newly-saved content so it appears in history as a restorable point.
   dbm.insertIniVersion(w.world_id, content, "saved");
-  dbm.logEvent(w.world_id, "settings", "Edited PalWorldSettings.ini in the in-app editor (restart to apply)");
+  dbm.logEvent(w.world_id, "settings", "Edited DedicatedServer.ini in the in-app editor (restart to apply)");
   return NextResponse.json({ ok: true, path, running: sup.isRunning(w.world_id) });
 }

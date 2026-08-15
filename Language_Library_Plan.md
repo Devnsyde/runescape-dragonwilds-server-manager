@@ -17,7 +17,7 @@ of the **transport** (`/api/i18n/download`) that's already shipped.
 | Untrusted‑pack validator | `lib/i18n/validate.js` (`validatePackText`) | Every catalog install still passes through this — catalog packs are **not** trusted |
 | Download transport | `app/api/i18n/download/route.js` (https‑only, size‑cap, redirect/timeout `getText`) | Install = call this with the catalog entry's `url` |
 | Import / remove | `app/api/i18n/import/route.js` (POST text, DELETE `?code`) | Remove stays as‑is |
-| GitHub fetch + TTL cache pattern | `app/api/app/version/route.js` (`https.get`, `globalThis.__PAL_*`) | Same pattern for fetching the catalog index |
+| GitHub fetch + TTL cache pattern | `app/api/app/version/route.js` (`https.get`, `globalThis.__APP_*`) | Same pattern for fetching the catalog index |
 | Settings language card | `app/settings/page.jsx` | Add a "Browse community packs" section/modal |
 | Writable pack dir | `lib/paths.js` (`P.languagePacks()`) | Unchanged |
 
@@ -30,7 +30,7 @@ security model does not change.
 ## 2. Architecture
 
 ```
-   GitHub repo (source of truth)              App (Palworld Server Manager)
+   GitHub repo (source of truth)              App (Server Manager)
    ┌─────────────────────────────┐            ┌──────────────────────────────────┐
    │ registry/index.json         │  https     │ GET /api/i18n/registry           │
    │   → lists available packs    │◄───────────│   fetch+cache index, mark which   │
@@ -120,7 +120,7 @@ const REGISTRY_URL = process.env.PAL_I18N_REGISTRY_URL ||
 const TTL = 30 * 60 * 1000;               // cache the index for 30 min
 
 export async function GET() {
-  // 1. fetch+cache index via getText (globalThis.__PAL_I18N_REG, version-route pattern)
+  // 1. fetch+cache index via getText (globalThis.__APP_I18N_REG, version-route pattern)
   // 2. validateIndex(text): schema===1, packs is array (cap ≤500), each entry has a
   //    valid code (reuse CODE_RE), https url on an allow-listed host, string fields.
   // 3. cross-reference lib/i18n/loader.listLanguages():

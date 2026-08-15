@@ -2,8 +2,8 @@
 
 _Last updated: 8 July 2026_
 
-Palworld Server Manager ("the app") is a desktop application you install and run on
-your own computer to manage Palworld dedicated servers. Your privacy is simple to
+Runescape DragonWilds Server Manager ("the app") is a desktop application you install and run on
+your own computer to manage Runescape DragonWilds dedicated servers. Your privacy is simple to
 explain because the app is designed to keep your data on your machine.
 
 ## What the app collects
@@ -28,10 +28,10 @@ server install folders.
 
 The app only contacts external services to perform the tasks you ask of it:
 
-- **Valve / Steam (SteamCMD and Steam's public info API):** to download or update the
-  Palworld dedicated server and to check the latest available build version. This is
+- **Valve / Steam (SteamCMD and Steam's public info API):** to download or update
+  the dedicated server and to check the latest available build version. This is
   governed by Valve's own privacy policy.
-- **Your Palworld server's local REST API:** used on your own computer / network to
+- **Your game server's local REST API:** used on your own computer / network to
   read status and manage players. This traffic does not leave your network.
 - **Discord (optional):** only if you choose to configure a Discord webhook. When
   enabled, the app sends server-event notifications (for example "server started") to

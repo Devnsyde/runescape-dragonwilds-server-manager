@@ -110,7 +110,7 @@ export default function ModsPanel({ worldId, running }) {
     catch (e) { toast(e.message, "error"); }
   };
 
-  // Point PSM at the Steam library where Workshop content lives (for setups where
+  // Point DWSM at the Steam library where Workshop content lives (for setups where
   // Steam isn't on C:). Saved machine-wide, so every future add finds mods on its own.
   const setSteamLibrary = async (path) => {
     setBusy(true);

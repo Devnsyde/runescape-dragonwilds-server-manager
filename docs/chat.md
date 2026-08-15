@@ -3,7 +3,7 @@
 ## The problem
 
 Earlier versions shipped a Chat tab that parsed `[CHAT] <name> message` lines from the
-Palworld dedicated server's **stdout**. It never worked and was removed in v1.3.0.
+server's **stdout**. It never worked and was removed in v1.3.0.
 
 The reason, confirmed by research:
 
@@ -33,9 +33,9 @@ Rather than depend on a third-party mod's private log format, the app ships its 
 UE4SS Lua mod so it controls both ends of the pipe.
 
 ```
- Palworld server  ─┐
+ Game server  ─────┐
    (UE4SS)         │  hooks BroadcastChatMessage
-   PSMChatRelay ───┼─▶ appends JSON line ─▶ <install>/Pal/Saved/psm-chat.jsonl
+   DWSMChatRelay ───┼─▶ appends JSON line ─▶ <install>/Saved/dwsm-chat.jsonl
                     │
  Server Manager  ──┴─▶ tails the .jsonl ─▶ in-app Chat tab (SSE)
                                         └▶ optional Discord webhook relay
@@ -80,21 +80,20 @@ different servers relay to different channels.
 
 ## Setup for users
 
-1. Install **UE4SS** (experimental Palworld build) into the server —
-   `Pal/Binaries/Win64`.
+1. Install **UE4SS** into the server — `Binaries/Win64`.
 2. In the app, open the world → **Chat** tab → **Install chat relay mod**. The installer
-   copies `PSMChatRelay` into the Mods folder this UE4SS build actually scans —
-   `Pal/Binaries/Win64/ue4ss/Mods` on UE4SS 3.x, or `Pal/Binaries/Win64/Mods` on 2.x.
+   copies `PSMChatRelay` into the Mods folder this UE4SS build actually scans
+   — `Pal/Binaries/Win64/ue4ss/Mods` on UE4SS 3.x, or `Pal/Binaries/Win64/Mods` on 2.x.
 3. **Restart the world** (UE4SS loads mods only at startup). Player chat now appears in
-   the Chat tab. On load, UE4SS.log prints `[PSMChatRelay] loaded` and the mod creates
-   `Pal/Saved/psm-chat.jsonl`.
+   the Chat tab. On load, UE4SS.log prints `[DWSMChatRelay] loaded` and the mod creates
+   `Saved/dwsm-chat.jsonl`.
 4. (Optional) set this world's **Discord webhook** and enable **Chat relay** in the
    world's **Admin → Discord notifications** section.
 
 ## Limits / notes
 
 - Requires UE4SS, which is a third-party tool the app does not redistribute.
-- The hooked function name can change with Palworld updates; the mod is small and easy
+-- The hooked function name can change with game updates; the mod is small and easy
   to adjust if a future build renames it.
 - Sending *into* the game as a player isn't supported by the REST API, so admin messages
   still go out as a server-wide announcement (broadcast).

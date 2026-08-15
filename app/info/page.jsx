@@ -5,7 +5,8 @@ import { Icon } from "@/components/ui";
 
 const GUIDES = [
   { id: "internet", titleKey: "info.guideInternetTitle", subtitleKey: "info.guideInternetSubtitle", icon: "globe" },
-  { id: "discord-bot", titleKey: "info.guideBotTitle", subtitleKey: "info.guideBotSubtitle", icon: "chat" },
+  // Discord guide removed for DragonWilds (no built-in Discord bot integration)
+  // { id: "discord-bot", titleKey: "info.guideBotTitle", subtitleKey: "info.guideBotSubtitle", icon: "chat" },
 ];
 
 export default function InfoPage() {

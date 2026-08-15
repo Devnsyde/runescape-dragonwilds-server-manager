@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslation, Trans } from "react-i18next";
 import { api, Icon, StatusChip, fmtUptime, fmtTime, toast } from "@/components/ui";
-import PlayersPanel from "@/components/PlayersPanel";
+// Players panel removed for DragonWilds (no REST API for player management)
+// import PlayersPanel from "@/components/PlayersPanel";
 import LogsPanel from "@/components/LogsPanel";
 import CustomizeModal from "@/components/CustomizeModal";
 import SettingsEditor from "@/components/SettingsEditor";
@@ -13,29 +14,31 @@ import SchedulePanel from "@/components/SchedulePanel";
 import MapPanel from "@/components/MapPanel";
 import ModsPanel from "@/components/ModsPanel";
 import Ue4ssPanel from "@/components/Ue4ssPanel";
-import PalSchemaPanel from "@/components/PalSchemaPanel";
 import PrereqsNotice from "@/components/PrereqsNotice";
 import AdminPanel from "@/components/AdminPanel";
 import ChatPanel from "@/components/ChatPanel";
-import DeathsPanel from "@/components/DeathsPanel";
 import BroadcastPanel from "@/components/BroadcastPanel";
-import DiscordPanel from "@/components/DiscordPanel";
-import DiscordBotPanel from "@/components/DiscordBotPanel";
+// PalSchemaPanel removed: reference deleted
+// Discord integration removed for DragonWilds (no chat relay / webhook support by default)
+// import DiscordPanel from "@/components/DiscordPanel";
+// import DiscordBotPanel from "@/components/DiscordBotPanel";
 
 const TABS = [
   { id: "overview", labelKey: "world.tab.overview", icon: "grid" },
-  { id: "players", labelKey: "world.tab.players", icon: "users" },
-  { id: "deaths", labelKey: "world.tab.deaths", icon: "activity" },
+  // Players tab removed for DragonWilds (no REST API for player management)
+  // { id: "players", labelKey: "world.tab.players", icon: "users" },
   { id: "map", labelKey: "world.tab.map", icon: "map" },
   { id: "broadcast", labelKey: "world.tab.broadcast", icon: "bell" },
-  { id: "chat", labelKey: "world.tab.chat", icon: "chat" },
+  // Chat tab removed for DragonWilds (no API/mods for chat relay by default)
+  // { id: "chat", labelKey: "world.tab.chat", icon: "chat" },
   { id: "console", labelKey: "world.tab.console", icon: "terminal" },
   { id: "settings", labelKey: "world.tab.settings", icon: "settings" },
   { id: "backups", labelKey: "world.tab.backups", icon: "download" },
   { id: "schedule", labelKey: "world.tab.schedule", icon: "clock" },
   { id: "mods", labelKey: "world.tab.mods", icon: "shield" },
-  { id: "discord", labelKey: "world.tab.discord", icon: "bell" },
-  { id: "discordbot", labelKey: "world.tab.discordBot", icon: "chat" },
+  // Discord tabs removed for DragonWilds
+  // { id: "discord", labelKey: "world.tab.discord", icon: "bell" },
+  // { id: "discordbot", labelKey: "world.tab.discordBot", icon: "chat" },
   { id: "admin", labelKey: "world.tab.admin", icon: "settings" },
 ];
 
@@ -172,10 +175,18 @@ export default function WorldDetail() {
 
       <div className="panel" style={{ padding: "1.3rem" }}>
         {tab === "overview" && <Overview world={world} live={live} events={events} sessions={sessions} onDelete={() => setDeleting(true)} />}
-        {tab === "players" && <PlayersPanel worldId={id} players={live?.players} onChange={load} />}
+        {/* Players tab removed for DragonWilds; player management is in-game only */}
         {tab === "deaths" && <DeathsPanel worldId={id} running={running} onGoToUe4ss={() => setTab("mods")} onGoToDiscord={() => setTab("discord")} />}
         {tab === "map" && <MapPanel players={live?.players} running={running} />}
-        {tab === "broadcast" && <BroadcastPanel worldId={id} running={running} onGoToUe4ss={() => setTab("mods")} />}
+        {tab === "broadcast" && (
+          <div className="panel-inset">
+            <div style={{ fontWeight: 800, fontSize: "0.9rem" }}>Broadcasts unavailable</div>
+            <p className="subtle" style={{ fontWeight: 600, fontSize: "0.78rem" }}>
+              The on-screen broadcast feature is DragonWilds-specific and requires a community UE4SS mod which
+              is not bundled. This panel has been disabled to avoid offering unsupported functionality.
+            </p>
+          </div>
+        )}
         {tab === "chat" && <ChatPanel worldId={id} running={running} onGoToUe4ss={() => setTab("mods")} />}
         {tab === "console" && <LogsPanel worldId={id} />}
         {tab === "settings" && <SettingsEditor worldId={id} world={world} running={running} onGoToAdmin={() => setTab("admin")} />}
@@ -188,15 +199,11 @@ export default function WorldDetail() {
               <ModsPanel worldId={id} running={running} />
             </div>
             <div style={{ borderTop: "1px solid var(--line)", paddingTop: "1.4rem" }}>
-              <Ue4ssPanel worldId={id} running={running} />
-            </div>
-            <div style={{ borderTop: "1px solid var(--line)", paddingTop: "1.4rem" }}>
-              <PalSchemaPanel worldId={id} world={world} running={running} />
+            <Ue4ssPanel worldId={id} running={running} />
             </div>
           </div>
         )}
-        {tab === "discord" && <DiscordPanel world={world} onChange={load} />}
-        {tab === "discordbot" && <DiscordBotPanel world={world} />}
+        {/* Discord integration removed for DragonWilds; panels disabled */}
         {tab === "admin" && <AdminPanel world={world} running={running} onChange={load} />}
       </div>
 

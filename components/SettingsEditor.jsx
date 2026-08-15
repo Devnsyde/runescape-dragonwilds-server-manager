@@ -4,13 +4,8 @@ import { useTranslation, Trans } from "react-i18next";
 import { api, Icon, toast } from "@/components/ui";
 import IniEditor from "@/components/IniEditor";
 
-// Community-tested starting presets (from published Palworld tuning guides).
-// Applying one just stages the changes in the editor; you still review + save.
-const PRESETS = {
-  "Casual PvE": { EnemyDropItemRate: 1.25, CollectionDropRate: 1.15, DeathPenalty: "Item", SupplyDropSpan: 50, PalSpawnNumRate: 1.0, ServerPlayerMaxNum: 20 },
-  "Balanced PvP": { EnemyDropItemRate: 1.05, CollectionDropRate: 1.0, DeathPenalty: "ItemAndEquipment", SupplyDropSpan: 60, PalSpawnNumRate: 1.0, ServerPlayerMaxNum: 40 },
-  "Small-group PvP": { EnemyDropItemRate: 1.1, CollectionDropRate: 1.05, DeathPenalty: "Item", SupplyDropSpan: 55, PalSpawnNumRate: 1.0, ServerPlayerMaxNum: 24 },
-};
+// Presets removed: DragonWilds does not support the Palworld tuning presets.
+const PRESETS = {};
 
 // Decode a raw ini value (string) into a typed JS value for the control.
 function decode(type, raw, def) {
@@ -43,7 +38,7 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
   const [exists, setExists] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeGroup, setActiveGroup] = useState(0);
-  const [search, setSearch] = useState("");
+  // Search removed: settings surface is small for DragonWilds
 
   const load = async () => {
     const r = await api(`/api/worlds/${worldId}/settings`);
@@ -122,21 +117,16 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
   };
 
   const applyPreset = (name) => {
-    const preset = PRESETS[name];
-    if (!preset) return;
-    setDraft((d) => ({ ...d, ...preset }));
-    setTouched((prev) => { const n = new Set(prev); for (const k of Object.keys(preset)) n.add(k); return n; });
+    // No-op: presets are not applicable for DragonWilds. Keep function for
+    // backwards compatibility in case UI still calls it.
     toast(t("editor.presetApplied", { name }), "info");
   };
   const resetField = (f) => setDraft((d) => ({ ...d, [f.key]: saved[f.key] })); // revert to disk value
 
   if (!groups) return <p className="subtle" style={{ fontWeight: 600 }}>{t("editor.loading")}</p>;
 
-  const filtering = search.trim().length > 0;
-  const q = search.toLowerCase();
-  const visibleGroups = filtering
-    ? groups.map((g) => ({ ...g, fields: g.fields.filter((f) => f.label.toLowerCase().includes(q) || f.key.toLowerCase().includes(q)) })).filter((g) => g.fields.length)
-    : [groups[activeGroup]];
+  // No search/filtering — always show the active group's fields
+  const visibleGroups = [groups[activeGroup]];
 
   return (
     <div>
@@ -153,13 +143,7 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
       )}
 
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
-        <input className="input" placeholder={t("editor.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} style={{ maxWidth: 240 }} />
-        <span className="subtle" style={{ fontSize: "0.72rem", fontWeight: 700 }}>{t("editor.presets")}</span>
-        {Object.keys(PRESETS).map((name) => (
-          <button key={name} className="btn btn-subtle" style={{ padding: "0.35rem 0.7rem", fontSize: "0.78rem" }} onClick={() => applyPreset(name)}>
-            {name}
-          </button>
-        ))}
+        {/* Presets removed for DragonWilds */}
         <div style={{ marginLeft: "auto", display: "flex", gap: "0.4rem" }}>
           <button className="btn btn-ghost" style={{ padding: "0.35rem 0.7rem", fontSize: "0.78rem" }} onClick={exportSettings}>
             <Icon name="upload" size={14} /> {t("editor.export")}
@@ -171,7 +155,7 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
         </div>
       </div>
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
-        {!filtering && (
+        {
           <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
             {groups.map((g, i) => (
               <button key={g.title} className={`btn ${activeGroup === i ? "btn-primary" : "btn-subtle"}`} style={{ padding: "0.35rem 0.7rem", fontSize: "0.8rem" }} onClick={() => setActiveGroup(i)}>
@@ -179,22 +163,17 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
               </button>
             ))}
           </div>
-        )}
+        }
       </div>
 
       {visibleGroups.map((g) => (
-        <div key={g.title} style={{ marginBottom: filtering ? "1.4rem" : 0 }}>
-          {filtering && <h4 className="heading" style={{ fontSize: "0.85rem", margin: "0 0 0.6rem", color: "var(--ink-soft)" }}>{g.title}</h4>}
+        <div key={g.title} style={{ marginBottom: "1.4rem" }}>
+          <h4 className="heading" style={{ fontSize: "0.85rem", margin: "0 0 0.6rem", color: "var(--ink-soft)" }}>{g.title}</h4>
           {/* Public IP/port only matter once the server is publicly listed. Nudge the
               user to turn that on — but only while it's still off. */}
           {g.title === "Server Identity" && world && !world.community_server && (
             <Notice color="var(--yellow)">
               <Icon name="alert" size={14} /> <Trans i18nKey="editor.communityNotice" components={{ b: <b /> }} />
-              {onGoToAdmin && (
-                <button className="btn btn-subtle" style={{ padding: "0.2rem 0.6rem", fontSize: "0.74rem", marginLeft: "auto" }} onClick={onGoToAdmin}>
-                  {t("editor.goToAdmin")}
-                </button>
-              )}
             </Notice>
           )}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "0.9rem" }}>

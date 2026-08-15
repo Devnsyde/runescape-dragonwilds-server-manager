@@ -19,6 +19,10 @@ function timeAgo(ts, t) {
 }
 
 export default function PlayersPanel({ worldId, players, onChange }) {
+  // Players panel intentionally disabled: DragonWilds does not support remote kick/ban
+  // or player management from this UI. Keep component mounted as a safe no-op.
+  return null;
+
   const { t } = useTranslation();
   const [busy, setBusy] = useState(null);
   const [stats, setStats] = useState(null);

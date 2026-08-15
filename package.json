@@ -1,8 +1,8 @@
 {
-  "name": "palworld-server-manager",
-  "version": "2.9.0",
-  "description": "Multi-world Palworld dedicated server manager (SteamCMD, REST API, backups, scheduler)",
-  "author": "Palworld Server Manager",
+  "name": "runescape-dragonwilds-server-manager",
+  "version": "1.0.0",
+  "description": "Multi-world Runescape DragonWilds dedicated server manager (SteamCMD, REST API, backups, scheduler)",
+  "author": "Runescape DragonWilds Server Manager",
   "main": "electron/main.js",
   "private": true,
   "scripts": {
@@ -42,8 +42,8 @@
     "wait-on": "^8.0.1"
   },
   "build": {
-    "appId": "com.palworld.servermanager",
-    "productName": "Palworld Server Manager",
+    "appId": "com.runescape.dragonwilds.servermanager",
+    "productName": "Runescape DragonWilds Server Manager",
     "files": [
       "electron/**/*",
       "package.json"
@@ -83,7 +83,7 @@
       "installerHeaderIcon": "public/icon.ico"
     },
     "portable": {
-      "artifactName": "PalworldServerManager-${version}-portable.exe"
+      "artifactName": "RunescapeDragonWildsServerManager-${version}-portable.exe"
     },
     "linux": {
       "target": [

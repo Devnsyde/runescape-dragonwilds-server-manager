@@ -24,7 +24,7 @@ export async function POST(req) {
   }
 
   const payload = JSON.stringify({
-    content: "**[test]** ✅ Palworld Server Manager can reach this channel.",
+    content: "**[test]** ✅ Server Manager can reach this channel.",
   });
 
   const result = await new Promise((resolve) => {

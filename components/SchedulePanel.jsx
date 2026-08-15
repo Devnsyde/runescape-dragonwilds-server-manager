@@ -132,7 +132,6 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
 
   return (
     <div>
-      {world && <WarningConfig world={world} onChange={onChange} />}
       <div className="panel-inset" style={{ padding: "0.9rem", marginBottom: "1rem", display: "grid", gap: "0.6rem" }}>
         {onScreenModMissing && (
           <div className="panel-inset" style={{ padding: "0.7rem 0.9rem", borderLeft: "3px solid var(--yellow)", display: "flex", gap: "0.8rem", alignItems: "center", flexWrap: "wrap" }}>

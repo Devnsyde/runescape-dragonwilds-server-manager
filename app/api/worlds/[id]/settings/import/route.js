@@ -6,7 +6,7 @@ const ra = require("@/lib/remoteauth");
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const MANAGED = new Set(["PublicPort","RESTAPIPort","RESTAPIEnabled","RCONPort","RCONEnabled","AdminPassword","ServerPassword","PublicIP"]);
+const MANAGED = new Set(["PublicPort","RESTAPIPort","RESTAPIEnabled","RCONPort","RCONEnabled","AdminPassword","WorldPassword","OwnerId","ServerName","DefaultWorldName","PublicIP"]);
 
 export async function POST(req, { params }) {
   const w = dbm.getWorld(params.id);
@@ -37,7 +37,13 @@ export async function POST(req, { params }) {
   merged.PublicPort = String(w.game_port);
   merged.RESTAPIPort = String(w.rest_api_port);
   merged.RESTAPIEnabled = w.rest_api_enabled ? "True" : "False";
-  merged.AdminPassword = `"${w.admin_password || ""}"`;
+  merged.RCONPort = w.rcon_port != null ? String(w.rcon_port) : "";
+  merged.AdminPassword = w.admin_password || "";
+  merged.WorldPassword = w.server_password || "";
+  merged.OwnerId = w.owner_id || "";
+  merged.ServerName = w.display_name || "";
+  merged.DefaultWorldName = w.default_world_name || "";
+  merged.PublicIP = w.public_ip || "";
   merged.RCONEnabled = w.rcon_enabled ? "True" : "False";
   ini.writeSettings(w.install_dir, merged, w.platform);
   dbm.logEvent(w.world_id, "settings", `Imported ${applied} settings (restart to apply)`);

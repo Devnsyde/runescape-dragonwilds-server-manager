@@ -44,9 +44,9 @@ export default function Shell({ children }) {
 
   useEffect(() => {
     // restore collapse preference
-    try { const v = window.__palSidebar; if (typeof v === "boolean") setCollapsed(v); } catch {}
+    try { const v = window.__dwsmSidebar; if (typeof v === "boolean") setCollapsed(v); } catch {}
   }, []);
-  const toggleCollapse = () => setCollapsed((c) => { const n = !c; try { window.__palSidebar = n; } catch {} return n; });
+  const toggleCollapse = () => setCollapsed((c) => { const n = !c; try { window.__dwsmSidebar = n; } catch {} return n; });
 
   useEffect(() => {
     registerToast((msg, kind) => {
@@ -77,9 +77,9 @@ export default function Shell({ children }) {
           {!collapsed && (
             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
               <div style={{ width: 34, height: 34, borderRadius: 10, overflow: "hidden", display: "grid", placeItems: "center", flexShrink: 0 }}>
-                <img src="/icon.png" alt="PSM" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src="/icon.png" alt="DWSM" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
-              <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "0.92rem", whiteSpace: "nowrap" }}>PSM</span>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "0.92rem", whiteSpace: "nowrap" }}>RSDW</span>
             </div>
           )}
           <button onClick={toggleCollapse} title={collapsed ? t("action.expand") : t("action.collapse")}
@@ -122,10 +122,10 @@ export default function Shell({ children }) {
             {!collapsed && (
               <div style={{ lineHeight: 1.1, minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: "0.78rem", whiteSpace: "nowrap" }}>
-                  {t("app.name")}
+                  RSDW Server Manager
                 </div>
                 <div className="subtle" style={{ fontSize: "0.68rem" }}>
-                  v{ver?.current || "—"}{ver && !ver.updateAvailable && ver.checked ? ` · ${t("app.upToDate")}` : ""}
+                  v1.0.0{ver && !ver.updateAvailable && ver.checked ? ` · ${t("app.upToDate")}` : ""}
                 </div>
               </div>
             )}

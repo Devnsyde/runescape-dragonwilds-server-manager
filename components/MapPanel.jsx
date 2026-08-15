@@ -123,18 +123,19 @@ export default function MapPanel({ players, running, devCalibrate = false }) {
   };
   const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
 
+  // For DragonWilds we embed an external interactive map (Fextralife). The
+  // original Palworld raster + calibration pipeline is not compatible with
+  // DragonWilds; keep a graceful fallback that hides the raster renderer and
+  // simply points the UI at the external map URL.
   useEffect(() => {
-    const img = new window.Image();
-    img.onload = () => setRaster("/map/palworld-map.jpg");
-    img.onerror = () => setRaster(false);
-    img.src = "/map/palworld-map.jpg";
-    // Global calibration ships as a static file, so every install gets it for free.
-    fetch("/map/calibration.json?t=" + Date.now())
-      .then((r) => (r.ok ? r.json() : { points: [] }))
-      .then((j) => setBaked(Array.isArray(j.points) ? j.points : []))
-      .catch(() => {});
-    // A local override, if this user calibrated the map themselves.
-    api("/api/map").then((r) => setUserPts(r.points || [])).catch(() => {});
+    // Use the Fextralife interactive map for RuneScape: Dragonwilds.
+    // The MapPanel rendering code expects `raster` to be a string (url) to
+    // display the image background; setting to false disables the raster
+    // pipeline and shows the interactive iframe instead.
+    setRaster(false);
+    // clear any baked/user calibration so the old palworld calibration isn't used
+    setBaked([]);
+    setUserPts([]);
   }, []);
 
   const list = players?.players || [];
@@ -262,7 +263,18 @@ export default function MapPanel({ players, running, devCalibrate = false }) {
         <div style={{ position: "absolute", inset: 0, transformOrigin: "0 0", transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}>
           {raster ? (
             <div style={{ position: "absolute", inset: 0, background: `center / cover no-repeat url(${raster})` }} />
-          ) : <DrawnIsland />}
+          ) : (
+            // When raster is disabled we embed the DragonWilds interactive map
+            // in an iframe. The map is hosted externally (Fextralife) and will
+            // open inside the map panel; interactive features (zoom/pan) come
+            // from the external site.
+            <iframe
+              title="RSDW Interactive Map"
+              src="https://runescapedragonwilds.wiki.fextralife.com/Interactive_Map"
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }}
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+            />
+          )}
 
           {/* pending calibration marks (counter-scaled to stay a constant size) */}
           {calibrating && pending.map((pt, i) => (

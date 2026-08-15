@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { api, Icon, fmtTime, toast } from "@/components/ui";
 
 // Broadcast to players: send now, or schedule messages for later (list/edit/delete).
-// Delivery prefers the bundled PSMBroadcast UE4SS mod, which shows the message on every
+// Delivery prefers the bundled DWSMBroadcast UE4SS mod, which shows the message on every
 // player's screen via the server's system announce; without the mod it falls back to
 // Palworld's REST announce (which lands in the chat feed). Fired schedules auto-remove.
 export default function BroadcastPanel({ worldId, running, onGoToUe4ss }) {

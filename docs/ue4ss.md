@@ -1,13 +1,13 @@
 # UE4SS / Lua mod support
 
-Palworld dedicated servers have two unrelated modding systems. The app manages both,
+Dedicated servers have two unrelated modding systems. The app manages both,
 in clearly separated sections of the Mods tab:
 
 1. **Steam Workshop mods** — Pocketpair's official system. Files live in
    `<install>/Mods/` and are toggled via `Mods/PalModSettings.ini`. Managed by
    `lib/mods.js`.
-2. **UE4SS / Lua mods** — a third-party framework (UE4SS) that injects and runs Lua
-   script mods at runtime. This is what most Palworld mods on Nexus use. Managed by
+**UE4SS / Lua mods** — a third-party framework (UE4SS) that injects and runs Lua
+script mods at runtime. This is what many community mods on Nexus use. Managed by
    `lib/ue4ss.js`.
 
 ## How UE4SS is laid out (dedicated server)
@@ -55,5 +55,5 @@ UE4SS install is refused while the world is running.
 ## Limits
 
 - UE4SS is Windows-only and is a third-party tool the app does not bundle.
-- The correct UE4SS build depends on the current Palworld version; the user is
+- The correct UE4SS build depends on the current game version; the user is
   responsible for downloading a compatible release.

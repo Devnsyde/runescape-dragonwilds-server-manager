@@ -1,8 +1,8 @@
--- PSMDeathRelay — Palworld Server Manager player-death relay
+-- DWSMDeathRelay — DragonWilds Server Manager player-death relay
 --
 -- Detects player deaths server-side and appends one JSON line per death to
---   Pal/Saved/psm-deaths.jsonl
--- which the Palworld Server Manager app tails to log the death and route it to Discord.
+--   Pal/Saved/dwsm-deaths.jsonl
+-- which the RuneScape DragonWilds Server Manager app tails to log the death and route it to Discord.
 --
 -- Hook (one, low-frequency):
 --   /Script/Pal.PalBattleManager:EventOnPlayerDeadCompletely(victim, PalDyingEndInfo)
@@ -25,17 +25,17 @@
 --   which is safe to call on a null/invalid handle and returns false) BEFORE any property
 --   read, so this hook can never repeat that native crash even on a malformed death event.
 --
--- Requires UE4SS (experimental Palworld build) in Pal/Binaries/Win64.
+-- Requires UE4SS (experimental build) in the game's Binaries/Win64 layout.
 --
 -- Output path: the app's installer rewrites the placeholder below with an absolute path
--- to <install>/Pal/Saved/psm-deaths.jsonl. If installed by hand (placeholder left as-is)
+-- to <install>/RSDragonwilds/Saved/dwsm-deaths.jsonl. If installed by hand (placeholder left as-is)
 -- we fall back to relative candidates covering both known UE4SS layouts.
 
 local CANDIDATES = {
-    [[__PSM_OUT_PATH__]],              -- absolute, rewritten by the app installer
-    "../../../Saved/psm-deaths.jsonl", -- UE4SS 3.x layout (cwd = Win64/ue4ss)
-    "../../Saved/psm-deaths.jsonl",    -- UE4SS 2.x layout (cwd = Win64)
-    "./psm-deaths.jsonl",              -- last resort: next to UE4SS
+    [[__DWSM_OUT_PATH__]],              -- absolute, rewritten by the app installer
+    "../../../Saved/dwsm-deaths.jsonl", -- UE4SS 3.x layout (cwd = Win64/ue4ss)
+    "../../Saved/dwsm-deaths.jsonl",    -- UE4SS 2.x layout (cwd = Win64)
+    "./dwsm-deaths.jsonl",              -- last resort: next to UE4SS
 }
 local OUT_PATH = nil
 
@@ -45,7 +45,7 @@ local function resolve_out_path()
         if p:sub(1, 2) ~= "__" then
             local f = io.open(p, "a")
             if f then f:close(); OUT_PATH = p
-                print(string.format("[PSMDeathRelay] writing deaths to: %s\n", p)); return OUT_PATH end
+                print(string.format("[DWSMDeathRelay] writing deaths to: %s\n", p)); return OUT_PATH end
         end
     end
     return nil
@@ -137,7 +137,7 @@ local function on_player_dead(self, victim_param, info_param)
         end)
 
         append_death(vname, cause)
-        print(string.format("[PSMDeathRelay] death: %s cause=%s\n", vname, cause))
+        print(string.format("[DWSMDeathRelay] death: %s cause=%s\n", vname, cause))
     end)
 end
 
@@ -151,7 +151,7 @@ local function try_register()
     for _, h in ipairs(HOOKS) do
         if not h.done then
             local ok = pcall(RegisterHook, h.path, h.fn)
-            if ok then h.done = true; print("[PSMDeathRelay] hooked " .. h.path .. "\n")
+            if ok then h.done = true; print("[DWSMDeathRelay] hooked " .. h.path .. "\n")
             else remaining = remaining + 1 end
         end
     end
@@ -165,4 +165,4 @@ if try_register() > 0 then
         ExecuteWithDelay(delay, function() pcall(try_register) end)
     end
 end
-print("[PSMDeathRelay] loaded (death-only, killer attribution disabled)\n")
+print("[DWSMDeathRelay] loaded (death-only, killer attribution disabled)\n")

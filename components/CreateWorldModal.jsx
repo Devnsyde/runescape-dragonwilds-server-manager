@@ -77,6 +77,8 @@ function NewInstall({ onBack, onClose, onDone }) {
   const { t } = useTranslation();
   const [name, setName] = useState(t("create.defaultWorldName"));
   const [dir, setDir] = useState("");
+  const [ownerId, setOwnerId] = useState("");
+  const [defaultWorldName, setDefaultWorldName] = useState("");
   const [ports, setPorts] = usePorts();
   const [password, setPassword] = useState("");
   const [starting, setStarting] = useState(false);
@@ -98,6 +100,7 @@ function NewInstall({ onBack, onClose, onDone }) {
       await api("/api/provision", { method: "POST", body: {
         display_name: name, install_dir: dir.trim(), ports,
         admin_password: password || undefined, platform,
+        owner_id: ownerId || undefined, default_world_name: defaultWorldName || undefined,
       } });
       try { window.__palJobsPing?.(); } catch {}
       toast(t("create.installStarted"), "success");
@@ -112,7 +115,7 @@ function NewInstall({ onBack, onClose, onDone }) {
         <Field label={t("create.worldName")}><input className="input" value={name} onChange={(e) => setName(e.target.value)} /></Field>
         <Field label={t("create.installFolder")} hint={t("create.installFolderHint")}>
           <div style={{ display: "flex", gap: "0.5rem" }}>
-            <input className="input" value={dir} onChange={(e) => setDir(e.target.value)} placeholder={isElectron ? t("create.browsePlaceholder") : "e.g. C:\\PalworldServers\\world1"} />
+            <input className="input" value={dir} onChange={(e) => setDir(e.target.value)} placeholder={isElectron ? t("create.browsePlaceholder") : "e.g. C:\\SteamLibrary\\steamapps\\common\\RSDragonwildsServer"} />
             <button className="btn btn-ghost" onClick={pickDir}><Icon name="folder" /> {t("common.browse")}</button>
           </div>
         </Field>
@@ -125,6 +128,12 @@ function NewInstall({ onBack, onClose, onDone }) {
         </Field>
         <Field label={t("create.adminPassword")} hint={t("create.adminPasswordHint")}>
           <input className="input" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </Field>
+        <Field label="OwnerId" hint="The owner's Player ID (required to run a DragonWilds dedicated server)">
+          <input className="input" value={ownerId} onChange={(e) => setOwnerId(e.target.value)} placeholder="e.g. 7656119..." />
+        </Field>
+        <Field label="Default world name">
+          <input className="input" value={defaultWorldName} onChange={(e) => setDefaultWorldName(e.target.value)} placeholder={t("create.defaultWorldName")} />
         </Field>
         <Actions>
           <button className="btn btn-ghost" onClick={onClose}>{t("common.cancel")}</button>
@@ -180,7 +189,7 @@ function ExistingInstall({ onBack, onClose, onDone }) {
       <Field label={t("create.serverFolderLabel")} hint={t("create.serverFolderHint")}>
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <input className="input" value={dir} onChange={(e) => setDir(e.target.value)}
-            placeholder={isElectron ? t("create.browseFolderPlaceholder") : "e.g. C:\\SteamLibrary\\steamapps\\common\\PalServer"}
+            placeholder={isElectron ? t("create.browseFolderPlaceholder") : "e.g. C:\\SteamLibrary\\steamapps\\common\\RSDragonwildsServer"}
             onKeyDown={(e) => e.key === "Enter" && detect()} />
           <button className="btn btn-ghost" onClick={pick}><Icon name="folder" /> {t("common.browse")}</button>
           <button className="btn btn-subtle" onClick={() => detect()} disabled={checking}>{checking ? t("common.checking") : t("create.detect")}</button>
@@ -198,7 +207,7 @@ function ExistingInstall({ onBack, onClose, onDone }) {
           <div className="panel-inset" style={{ padding: "0.8rem 0.9rem", borderLeft: "3px solid var(--green-bright)" }}>
             <div style={{ fontWeight: 700, fontSize: "0.88rem", marginBottom: 4 }}>{t("create.serverDetected")}</div>
             <div className="subtle" style={{ fontSize: "0.8rem", fontWeight: 600, display: "grid", gap: 2 }}>
-              <span>{t("create.binary", { name: info.binaryOs === "win32" ? "PalServer.exe" : "PalServer.sh" })}</span>
+              <span>{t("create.binary", { name: info.binaryOs === "win32" ? "RSDragonwildsServer.exe" : "RSDragonwildsServer.sh" })}</span>
               <span>{t("create.buildId", { id: info.buildId || t("create.buildIdUnknown") })}</span>
               <span>{t("create.existingSave", { val: info.hasExistingSave ? t("common.yes") : t("common.none") })}</span>
               {!info.matchesHostOs && <span style={{ color: "var(--yellow)" }}>{t("create.osWarning")}</span>}
