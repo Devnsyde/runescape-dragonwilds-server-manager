@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 // advertised to the community browser and are user-editable in Server Identity (so
 // a tunnel like playit.gg can be pointed to). Everything else stays app-controlled.
 const MANAGED = new Set([
-  "RESTAPIPort", "RESTAPIEnabled", "RCONPort", "RCONEnabled",
+  "RESTAPIPort", "RESTAPIEnabled",
   "AdminPassword", "WorldPassword", "OwnerId", "ServerName", "DefaultWorldName",
 ]);
 
@@ -45,6 +45,29 @@ export async function POST(req, { params }) {
   const body = await req.json();
   const changed = body.changed || body.options || {};
 
+  const unquote = (value) => {
+    const text = value == null ? "" : String(value);
+    if ((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))) {
+      return text.slice(1, -1);
+    }
+    return text;
+  };
+
+  // Persist password changes to the world record first, so managed re-apply
+  // below uses the latest saved values instead of stale DB values.
+  const worldUpdates = {};
+  if (Object.prototype.hasOwnProperty.call(changed, "AdminPassword")) {
+    worldUpdates.admin_password = unquote(changed.AdminPassword);
+  }
+  if (Object.prototype.hasOwnProperty.call(changed, "WorldPassword")) {
+    worldUpdates.server_password = unquote(changed.WorldPassword);
+  }
+  if (Object.keys(worldUpdates).length) {
+    dbm.updateWorld(params.id, worldUpdates);
+    if ("admin_password" in worldUpdates) w.admin_password = worldUpdates.admin_password;
+    if ("server_password" in worldUpdates) w.server_password = worldUpdates.server_password;
+  }
+
   const cur = ini.readSettings(w.install_dir, w.platform).options; // real current ini (source of truth)
   const merged = { ...cur };
 
@@ -64,10 +87,8 @@ export async function POST(req, { params }) {
   merged.OwnerId = w.owner_id || "";
   merged.ServerName = w.display_name || "";
   merged.DefaultWorldName = w.default_world_name || "";
-  if (w.rcon_enabled) { merged.RCONPort = String(w.rcon_port); merged.RCONEnabled = "True"; }
-  else merged.RCONEnabled = "False";
-
   const path = ini.writeSettings(w.install_dir, merged, w.platform);
-  dbm.logEvent(w.world_id, "settings", `Saved ${Object.keys(changed).length} change(s) to DedicatedServer.ini (restart to apply)`);
-  return NextResponse.json({ ok: true, path, written: Object.keys(merged).length });
+  const running = require("@/lib/supervisor").isAlive(w.world_id);
+  dbm.logEvent(w.world_id, "settings", `Saved ${Object.keys(changed).length} change(s) to DedicatedServer.ini${running ? " (restart to apply)" : ""}`);
+  return NextResponse.json({ ok: true, path, written: Object.keys(merged).length, running });
 }

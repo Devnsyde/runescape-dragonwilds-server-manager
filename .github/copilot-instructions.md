@@ -15,6 +15,14 @@ The application uses:
 
 The project supports Windows and Linux hosts. A Windows-target server may run on Linux through Wine.
 
+## Primary game documentation
+
+Before implementing or documenting dedicated-server settings, launch arguments, networking, public server listing, authentication, administration protocols, or other game-specific capabilities, consult the RuneScape: Dragonwilds dedicated server documentation:
+
+- https://dragonwilds.runescape.wiki/w/Dedicated_Servers
+
+Treat this page as the primary capability reference, but verify significant behavior against current game files or additional official documentation when available. Do not infer support from legacy Palworld code that remains in the repository. If the Dragonwilds documentation does not describe a feature, do not advertise or implement it as supported without further verified evidence.
+
 ## Current supported features
 
 Keep documentation and implementation aligned with the currently supported application surface:
@@ -152,6 +160,7 @@ Manual update actions may intentionally run SteamCMD even when the cached build 
 
 Before updating README or docs:
 
+- Review the dedicated server reference at https://dragonwilds.runescape.wiki/w/Dedicated_Servers for game-specific claims.
 - Verify feature claims against active tabs, imports, API routes, and backend call sites.
 - Avoid copying old Palworld terminology into Dragonwilds documentation.
 - Use the project name **Runescape: Dragonwilds Server Manager** in prose and `runescape-dragonwilds-server-manager` for the repository/package slug when appropriate.

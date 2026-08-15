@@ -28,6 +28,14 @@ export async function POST(req, { params }) {
   const incoming = ini.parseOptionSettings(iniText);
   if (!Object.keys(incoming).length) return NextResponse.json({ ok: false, error: "No OptionSettings found" }, { status: 400 });
 
+  const unquote = (value) => {
+    const text = value == null ? "" : String(value);
+    if ((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))) {
+      return text.slice(1, -1);
+    }
+    return text;
+  };
+
   // merge incoming (minus managed keys) onto current ini
   const cur = ini.readSettings(w.install_dir, w.platform).options;
   const merged = { ...cur };
@@ -38,8 +46,8 @@ export async function POST(req, { params }) {
   merged.RESTAPIPort = String(w.rest_api_port);
   merged.RESTAPIEnabled = w.rest_api_enabled ? "True" : "False";
   merged.RCONPort = w.rcon_port != null ? String(w.rcon_port) : "";
-  merged.AdminPassword = w.admin_password || "";
-  merged.WorldPassword = w.server_password || "";
+  merged.AdminPassword = unquote(w.admin_password);
+  merged.WorldPassword = unquote(w.server_password);
   merged.OwnerId = w.owner_id || "";
   merged.ServerName = w.display_name || "";
   merged.DefaultWorldName = w.default_world_name || "";

@@ -37,7 +37,6 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
   const [touched, setTouched] = useState(new Set()); // fields the user interacted with
   const [exists, setExists] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeGroup, setActiveGroup] = useState(0);
   // Search removed: settings surface is small for Dragonwilds
 
   const load = async () => {
@@ -83,7 +82,11 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
       const changed = {};
       for (const k of changedKeys) changed[k] = encode(fieldType[k], draft[k]);
       const r = await api(`/api/worlds/${worldId}/settings`, { method: "POST", body: { changed } });
-      toast(t("editor.savedChanges", { count: changedKeys.length }), "success");
+      const translated = t(changedKeys.length === 1 ? "editor.savedChanges_one" : "editor.savedChanges_other", { count: changedKeys.length });
+      const msg = translated.replace(/\s*[—-]\s*restart to apply\.?$/i, "");
+      const restartHint = t("editor.restartToApply");
+      const runningState = (typeof r.running === "boolean") ? r.running : r.runningCached;
+      toast(runningState ? `${msg} — ${restartHint}` : msg, "success");
       await load();
     } catch (e) { toast(e.message, "error"); }
     finally { setSaving(false); }
@@ -125,9 +128,6 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
 
   if (!groups) return <p className="subtle" style={{ fontWeight: 600 }}>{t("editor.loading")}</p>;
 
-  // No search/filtering — always show the active group's fields
-  const visibleGroups = [groups[activeGroup]];
-
   return (
     <div>
       {!exists && <Notice color="var(--yellow)">{t("editor.noFileNotice")}</Notice>}
@@ -154,19 +154,7 @@ export default function SettingsEditor({ worldId, world, running, onGoToAdmin })
           </label>
         </div>
       </div>
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
-        {
-          <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
-            {groups.map((g, i) => (
-              <button key={g.title} className={`btn ${activeGroup === i ? "btn-primary" : "btn-subtle"}`} style={{ padding: "0.35rem 0.7rem", fontSize: "0.8rem" }} onClick={() => setActiveGroup(i)}>
-                {g.title}
-              </button>
-            ))}
-          </div>
-        }
-      </div>
-
-      {visibleGroups.map((g) => (
+      {groups.map((g) => (
         <div key={g.title} style={{ marginBottom: "1.4rem" }}>
           <h4 className="heading" style={{ fontSize: "0.85rem", margin: "0 0 0.6rem", color: "var(--ink-soft)" }}>{g.title}</h4>
           {/* Public IP/port only matter once the server is publicly listed. Nudge the

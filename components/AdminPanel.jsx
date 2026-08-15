@@ -3,12 +3,19 @@ import { useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { api, Icon, toast } from "@/components/ui";
 
+function stripWrappingQuotes(value) {
+  const text = value == null ? "" : String(value);
+  if ((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))) {
+    return text.slice(1, -1);
+  }
+  return text;
+}
+
 export default function AdminPanel({ world, running, onChange }) {
   const { t } = useTranslation();
-  const [announce, setAnnounce] = useState("");
   const [name, setName] = useState(world.display_name);
   const [password, setPassword] = useState(world.admin_password);
-  const [serverPassword, setServerPassword] = useState(world.server_password || "");
+  const [serverPassword, setServerPassword] = useState(stripWrappingQuotes(world.server_password));
   const [extraArgs, setExtraArgs] = useState(world.extra_args || "");
   const [envVars, setEnvVars] = useState(envObjectToText(world.env_vars));
   const [wineBinary, setWineBinary] = useState(world.wine_binary || "wine");
@@ -18,17 +25,16 @@ export default function AdminPanel({ world, running, onChange }) {
   const [crashGuard, setCrashGuard] = useState(!!world.crash_guard);
   const [community, setCommunity] = useState(!!world.community_server);
   const [legacyPerf, setLegacyPerf] = useState(world.legacy_perf_flags !== 0);
-  const [rconOn, setRconOn] = useState(!!world.rcon_enabled);
   const [saving, setSaving] = useState(false);
   const [installDir, setInstallDir] = useState(world.install_dir || "");
   const [ownerId, setOwnerId] = useState(world.owner_id || "");
   const [defaultWorldName, setDefaultWorldName] = useState(world.default_world_name || "");
   // No-op: touch file for dependency tracking.
   const [movingDir, setMovingDir] = useState(false);
-  const [ports, setPorts] = useState({ game_port: world.game_port, query_port: world.query_port, rest_api_port: world.rest_api_port, rcon_port: world.rcon_port });
+  const [ports, setPorts] = useState({ game_port: world.game_port, query_port: world.query_port, rest_api_port: world.rest_api_port });
   const [savingPorts, setSavingPorts] = useState(false);
   const isElectron = typeof window !== "undefined" && window.desktop?.isElectron;
-  const portsChanged = ["game_port", "query_port", "rest_api_port", "rcon_port"].some((k) => Number(ports[k]) !== Number(world[k]));
+  const portsChanged = ["game_port", "query_port", "rest_api_port"].some((k) => Number(ports[k]) !== Number(world[k]));
 
   const savePorts = async () => {
     if (running) return toast(t("admin.stopBeforePorts"), "error");
@@ -59,25 +65,16 @@ export default function AdminPanel({ world, running, onChange }) {
     finally { setMovingDir(false); }
   };
 
-  const broadcast = async () => {
-    if (!announce.trim()) return;
-    try {
-      await api(`/api/worlds/${world.world_id}/rest`, { method: "POST", body: { command: "announce", message: announce.trim() } });
-      toast(t("admin.broadcastSent"), "success");
-      setAnnounce("");
-    } catch (e) { toast(e.message, "error"); }
-  };
-
   const saveProfile = async () => {
     setSaving(true);
     try {
       await api(`/api/worlds/${world.world_id}`, {
         method: "PATCH",
         body: {
-          display_name: name, admin_password: password, server_password: serverPassword,
+          display_name: name, admin_password: password, server_password: stripWrappingQuotes(serverPassword),
           extra_args: extraArgs, env_vars: envTextToObject(envVars),
                 autostart: autostart ? 1 : 0, crash_guard: crashGuard ? 1 : 0, community_server: community ? 1 : 0,
-                legacy_perf_flags: legacyPerf ? 1 : 0, rcon_enabled: rconOn ? 1 : 0,
+                legacy_perf_flags: legacyPerf ? 1 : 0,
                 owner_id: ownerId || null, default_world_name: defaultWorldName || null,
         },
       });
@@ -107,15 +104,6 @@ export default function AdminPanel({ world, running, onChange }) {
 
   return (
     <div style={{ display: "grid", gap: "1.6rem" }}>
-      <section>
-        <h3 className="heading" style={{ fontSize: "1rem", marginTop: 0 }}>{t("admin.broadcastTitle")}</h3>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <input className="input" placeholder={t("admin.announcePlaceholder")} value={announce} onChange={(e) => setAnnounce(e.target.value)} disabled={!running} />
-          <button className="btn btn-primary" onClick={broadcast} disabled={!running}><Icon name="bell" /> {t("common.send")}</button>
-        </div>
-        {!running && <p className="subtle" style={{ fontWeight: 700, fontSize: "0.74rem", marginTop: 4 }}>{t("admin.broadcastHint")}</p>}
-      </section>
-
       <section>
         <h3 className="heading" style={{ fontSize: "1rem" }}>{t("admin.worldProfile")}</h3>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
@@ -218,21 +206,6 @@ export default function AdminPanel({ world, running, onChange }) {
           </div>
         </div>
 
-        <div className="panel-inset" style={{ padding: "0.9rem 1.1rem", marginTop: "0.9rem", borderLeft: `3px solid ${rconOn ? "var(--green-bright)" : "var(--line-strong)"}` }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
-            <div style={{ minWidth: 240, flex: 1 }}>
-              <div className="heading" style={{ fontSize: "0.92rem" }}>{t("admin.rconTitle")}</div>
-              <div className="subtle" style={{ fontWeight: 600, fontSize: "0.78rem", marginTop: 2 }}>
-                <Trans i18nKey="admin.rconDesc" components={{ code: <code /> }} />
-              </div>
-            </div>
-            <Toggle label={rconOn ? t("common.on") : t("common.off")} on={rconOn} onClick={() => setRconOn((v) => !v)} />
-          </div>
-          <div className="subtle" style={{ fontWeight: 600, fontSize: "0.72rem", marginTop: 8 }}>
-            {t("admin.rconNote")}
-          </div>
-        </div>
-
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "1rem" }}>
           <button className="btn btn-primary" onClick={saveProfile} disabled={saving}><Icon name="download" /> {saving ? t("common.saving") : t("admin.saveProfile")}</button>
         </div>
@@ -267,7 +240,6 @@ export default function AdminPanel({ world, running, onChange }) {
           <PortField label={t("admin.portGameUdp")} value={ports.game_port} disabled={running} onChange={(v) => setPorts((p) => ({ ...p, game_port: v }))} />
           <PortField label={t("admin.portQuery")} value={ports.query_port} disabled={running} onChange={(v) => setPorts((p) => ({ ...p, query_port: v }))} />
           <PortField label={t("admin.portRest")} value={ports.rest_api_port} disabled={running} onChange={(v) => setPorts((p) => ({ ...p, rest_api_port: v }))} />
-          <PortField label={t("admin.portRcon")} value={ports.rcon_port} disabled={running || !rconOn} onChange={(v) => setPorts((p) => ({ ...p, rcon_port: v }))} />
         </div>
         <p className="subtle" style={{ fontWeight: 700, fontSize: "0.74rem", marginTop: "0.5rem" }}>
           {t("admin.portsHint")}

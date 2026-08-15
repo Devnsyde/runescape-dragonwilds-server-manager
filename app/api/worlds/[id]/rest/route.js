@@ -15,7 +15,6 @@ export async function POST(req, { params }) {
   try {
     let out;
     switch (command) {
-      case "announce": out = await rest.announce(w, message); break;
       case "kick": out = await rest.kick(w, userid, message); break;
       case "ban": out = await rest.ban(w, userid, message); break;
       case "unban": out = await rest.unban(w, userid); break;

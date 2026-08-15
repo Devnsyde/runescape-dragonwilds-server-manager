@@ -13,9 +13,9 @@ export async function GET(req, { params }) {
   return NextResponse.json({ ok: true, schedules: dbm.listSchedules(params.id) });
 }
 
-const JOB_TYPES = ["restart", "stop", "backup", "update", "system_message", "onscreen_notice", "idle_stop", "custom_http"];
+const JOB_TYPES = ["restart", "stop", "backup", "update", "system_message", "idle_stop", "custom_http"];
 const MODES = ["interval", "daily", "minutes", "on_join"];
-const MESSAGE_JOBS = ["system_message", "onscreen_notice"];
+const MESSAGE_JOBS = ["system_message"];
 const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"];
 
 export async function POST(req, { params }) {
@@ -26,29 +26,6 @@ export async function POST(req, { params }) {
   const mode = String(b.mode || "");
   if (!JOB_TYPES.includes(job_type)) return NextResponse.json({ ok: false, error: "Invalid job type." }, { status: 400 });
   if (!MODES.includes(mode)) return NextResponse.json({ ok: false, error: "Invalid schedule mode." }, { status: 400 });
-
-  const isMessageJob = MESSAGE_JOBS.includes(job_type);
-  const isHttpJob = job_type === "custom_http";
-  const message = String(b.message ?? "").trim();
-  if (isMessageJob && !message) return NextResponse.json({ ok: false, error: "A message is required for message jobs." }, { status: 400 });
-  // on_join only makes sense for the message jobs (there's a player to greet).
-  if (mode === "on_join" && !isMessageJob) return NextResponse.json({ ok: false, error: "The join trigger is only available for message jobs." }, { status: 400 });
-
-  // A custom HTTP job carries its request config (method/url/headers/body) as JSON in
-  // the message column. Validate the URL and method up front so a broken job can't be saved.
-  let httpConfig = null;
-  if (isHttpJob) {
-    let parsed;
-    try { parsed = new URL(String(b.url ?? "").trim()); } catch { return NextResponse.json({ ok: false, error: "A valid http(s) URL is required." }, { status: 400 }); }
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return NextResponse.json({ ok: false, error: "The URL must be http or https." }, { status: 400 });
-    const method = HTTP_METHODS.includes(String(b.method || "GET").toUpperCase()) ? String(b.method).toUpperCase() : "GET";
-    const headers = (b.headers && typeof b.headers === "object" && !Array.isArray(b.headers)) ? b.headers : {};
-    for (const [k, v] of Object.entries(headers)) {
-      if (!/^[A-Za-z0-9-]+$/.test(k)) return NextResponse.json({ ok: false, error: `Invalid header name: "${k}".` }, { status: 400 });
-      headers[k] = String(v);
-    }
-    httpConfig = JSON.stringify({ method, url: parsed.toString(), headers, body: b.body != null ? String(b.body) : "" });
-  }
 
   // idle_stop is presence-driven: its mode carries how long "nobody online" must last
   // before the world stops, so only the elapsed-time modes make sense. It takes no
@@ -78,7 +55,6 @@ export async function POST(req, { params }) {
     interval_hours,
     interval_minutes,
     time_of_day,
-    message: isMessageJob ? message : (isHttpJob ? httpConfig : null),
     join_match: mode === "on_join" ? (String(b.join_match ?? "").trim() || null) : null,
     join_delay_seconds,
     enabled: b.enabled === false ? 0 : 1,

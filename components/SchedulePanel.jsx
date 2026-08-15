@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { api, Icon, fmtTime, toast } from "@/components/ui";
 
-const MESSAGE_JOBS = ["system_message", "onscreen_notice"];
-
 export default function SchedulePanel({ worldId, world, schedules, onChange, onGoToBroadcast }) {
   const { t } = useTranslation();
   const [jobType, setJobType] = useState("restart");
@@ -12,58 +10,21 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
   const [intervalHours, setIntervalHours] = useState(6);
   const [intervalMinutes, setIntervalMinutes] = useState(30);
   const [timeOfDay, setTimeOfDay] = useState("04:00");
-  const [message, setMessage] = useState("");
   const [joinMatch, setJoinMatch] = useState("");
   const [joinDelay, setJoinDelay] = useState(10);
-  const [httpMethod, setHttpMethod] = useState("POST");
-  const [httpUrl, setHttpUrl] = useState("");
-  const [httpHeaders, setHttpHeaders] = useState("");
-  const [httpBody, setHttpBody] = useState("");
   const [busy, setBusy] = useState(false);
-  const [onScreenReady, setOnScreenReady] = useState(null); // null = unknown, true/false once checked
-
-  const isMessageJob = MESSAGE_JOBS.includes(jobType);
   const isIdleJob = jobType === "idle_stop";
-  const isHttpJob = jobType === "custom_http";
-
-  // Parse the headers textarea ("Header: value" per line) into an object.
-  const parseHeaders = (text) => {
-    const out = {};
-    for (const line of String(text || "").split("\n")) {
-      const i = line.indexOf(":");
-      if (i <= 0) continue;
-      const k = line.slice(0, i).trim();
-      const v = line.slice(i + 1).trim();
-      if (k) out[k] = v;
-    }
-    return out;
-  };
-
-  // On-screen notices are delivered through the PSMBroadcast mod, which is set up on
-  // the Broadcast tab. Check whether it's installed so we can warn (and offer a jump
-  // there) when the user picks an on-screen notice without it.
-  useEffect(() => {
-    let alive = true;
-    api(`/api/worlds/${worldId}/broadcasts`)
-      .then((r) => { if (alive) setOnScreenReady(!!r.modInstalled); })
-      .catch(() => { if (alive) setOnScreenReady(null); });
-    return () => { alive = false; };
-  }, [worldId]);
-
-  const onScreenModMissing = jobType === "onscreen_notice" && onScreenReady === false;
 
   // Switching jobs can leave the mode on something the new job doesn't support: the
   // join trigger is message-only, and idle auto-stop only takes an elapsed-time
   // threshold (no daily/on_join). Snap back to a valid mode in either case.
   const onJobType = (v) => {
     setJobType(v);
-    if (mode === "on_join" && !MESSAGE_JOBS.includes(v)) setMode("interval");
+    if (mode === "on_join") setMode("interval");
     if (v === "idle_stop" && !["interval", "minutes"].includes(mode)) setMode("interval");
   };
 
   const add = async () => {
-    if (isMessageJob && !message.trim()) return toast(t("schedule.messageRequired"), "error");
-    if (isHttpJob && !httpUrl.trim()) return toast(t("schedule.urlRequired"), "error");
     setBusy(true);
     try {
       await api(`/api/worlds/${worldId}/schedules`, {
@@ -73,15 +34,12 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
           interval_hours: mode === "interval" ? Number(intervalHours) : null,
           interval_minutes: mode === "minutes" ? Number(intervalMinutes) : null,
           time_of_day: mode === "daily" ? timeOfDay : null,
-          message: isMessageJob ? message.trim() : null,
           join_match: mode === "on_join" ? joinMatch.trim() : null,
           join_delay_seconds: mode === "on_join" ? Number(joinDelay) : null,
-          ...(isHttpJob ? { method: httpMethod, url: httpUrl.trim(), headers: parseHeaders(httpHeaders), body: httpBody } : {}),
         },
       });
       toast(t("schedule.added"), "success");
-      setMessage(""); setJoinMatch("");
-      if (isHttpJob) { setHttpUrl(""); setHttpHeaders(""); setHttpBody(""); }
+      setJoinMatch("");
       onChange();
     } catch (e) { toast(e.message, "error"); }
     finally { setBusy(false); }
@@ -133,19 +91,6 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
   return (
     <div>
       <div className="panel-inset" style={{ padding: "0.9rem", marginBottom: "1rem", display: "grid", gap: "0.6rem" }}>
-        {onScreenModMissing && (
-          <div className="panel-inset" style={{ padding: "0.7rem 0.9rem", borderLeft: "3px solid var(--yellow)", display: "flex", gap: "0.8rem", alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 220 }}>
-              <div style={{ fontWeight: 800, fontSize: "0.85rem" }}>{t("schedule.onscreenNeedsModTitle")}</div>
-              <div className="subtle" style={{ fontWeight: 600, fontSize: "0.76rem", marginTop: 2 }}>{t("schedule.onscreenNeedsModDesc")}</div>
-            </div>
-            {onGoToBroadcast && (
-              <button className="btn btn-primary" style={{ padding: "0.4rem 0.75rem" }} onClick={onGoToBroadcast}>
-                <Icon name="bell" size={14} /> {t("schedule.setUpInBroadcast")}
-              </button>
-            )}
-          </div>
-        )}
         <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "flex-end" }}>
           <div>
             <label className="label">{t("schedule.job")}</label>
@@ -154,9 +99,6 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
               <option value="stop">{t("schedule.jobType.stop")}</option>
               <option value="backup">{t("schedule.jobType.backup")}</option>
               <option value="update">{t("schedule.jobType.update")}</option>
-              <option value="system_message">{t("schedule.jobType.system_message")}</option>
-              <option value="onscreen_notice">{t("schedule.jobType.onscreen_notice")}</option>
-              <option value="custom_http">{t("schedule.jobType.custom_http")}</option>
               <option value="idle_stop">{t("schedule.jobType.idle_stop")}</option>
             </select>
           </div>
@@ -166,7 +108,7 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
               <option value="interval">{isIdleJob ? t("schedule.afterNHours") : t("schedule.everyNHours")}</option>
               <option value="minutes">{isIdleJob ? t("schedule.afterNMinutes") : t("schedule.everyNMinutes")}</option>
               {!isIdleJob && <option value="daily">{t("schedule.dailyAtTime")}</option>}
-              {isMessageJob && <option value="on_join">{t("schedule.whenJoins")}</option>}
+              <option value="on_join">{t("schedule.whenJoins")}</option>
             </select>
           </div>
           {mode === "interval" && (
@@ -201,41 +143,6 @@ export default function SchedulePanel({ worldId, world, schedules, onChange, onG
           )}
           <button className="btn btn-primary" onClick={add} disabled={busy}><Icon name="plus" /> {t("schedule.add")}</button>
         </div>
-        {isMessageJob && (
-          <div>
-            <label className="label">{t("schedule.message")}</label>
-            <input className="input" value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t("schedule.messagePlaceholder")} />
-            <p className="subtle" style={{ fontWeight: 600, fontSize: "0.72rem", marginTop: 4, marginBottom: 0 }}>
-              {t(jobType === "onscreen_notice" ? "schedule.onscreenHint" : "schedule.systemHint")}
-              {mode === "on_join" && ` ${t("schedule.playerFilterHint")} ${t("schedule.joinDelayHint")} ${t("schedule.playerTokenHint")}`}
-            </p>
-          </div>
-        )}
-        {isHttpJob && (
-          <div style={{ display: "grid", gap: "0.5rem" }}>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "flex-end" }}>
-              <div>
-                <label className="label">{t("schedule.httpMethod")}</label>
-                <select className="input" value={httpMethod} onChange={(e) => setHttpMethod(e.target.value)} style={{ width: 110 }}>
-                  {["GET", "POST", "PUT", "PATCH", "DELETE"].map((m) => <option key={m} value={m}>{m}</option>)}
-                </select>
-              </div>
-              <div style={{ flex: 1, minWidth: 220 }}>
-                <label className="label">{t("schedule.httpUrl")}</label>
-                <input className="input" value={httpUrl} onChange={(e) => setHttpUrl(e.target.value)} placeholder="https://my-api.example.com/alert" />
-              </div>
-            </div>
-            <div>
-              <label className="label">{t("schedule.httpHeaders")}</label>
-              <textarea className="input" value={httpHeaders} onChange={(e) => setHttpHeaders(e.target.value)} rows={2} placeholder={"Authorization: Bearer …\nContent-Type: application/json"} style={{ resize: "vertical", fontFamily: "monospace", fontSize: "0.78rem" }} />
-            </div>
-            <div>
-              <label className="label">{t("schedule.httpBody")}</label>
-              <textarea className="input" value={httpBody} onChange={(e) => setHttpBody(e.target.value)} rows={2} placeholder={'{"event":"alert"}'} style={{ resize: "vertical", fontFamily: "monospace", fontSize: "0.78rem" }} />
-            </div>
-            <p className="subtle" style={{ fontWeight: 600, fontSize: "0.72rem", margin: 0 }}>{t("schedule.httpHint")}</p>
-          </div>
-        )}
         {isIdleJob && (
           <p className="subtle" style={{ fontWeight: 600, fontSize: "0.72rem", margin: 0 }}>
             {t("schedule.idleHint")}

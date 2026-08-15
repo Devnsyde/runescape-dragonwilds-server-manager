@@ -97,7 +97,7 @@ export async function PATCH(req, { params }) {
     dbm.logEvent(params.id, "settings", `Install folder changed to ${info.installDir}`);
   }
 
-  const allowed = ["display_name", "admin_password", "server_password", "autostart", "crash_guard", "rest_api_enabled", "extra_args", "env_vars", "wine_binary", "wine_prefix", "wine_launch_flags", "game_port", "query_port", "rest_api_port", "rcon_port", "rcon_enabled", "community_server", "mods_enabled", "discord_webhook", "notify_events", "discord_relay_chat", "discord_webhooks", "notify_templates", "warn_enabled", "warn_lead_minutes", "warn_interval_minutes", "warn_message", "legacy_perf_flags", "owner_id", "default_world_name"];
+  const allowed = ["display_name", "admin_password", "server_password", "autostart", "crash_guard", "rest_api_enabled", "extra_args", "env_vars", "wine_binary", "wine_prefix", "wine_launch_flags", "game_port", "query_port", "rest_api_port", "community_server", "mods_enabled", "discord_webhook", "notify_events", "discord_relay_chat", "discord_webhooks", "notify_templates", "warn_enabled", "warn_lead_minutes", "warn_interval_minutes", "warn_message", "legacy_perf_flags", "owner_id", "default_world_name"];
 
   const clean = {};
   for (const k of allowed) if (k in patch) clean[k] = patch[k];
@@ -115,6 +115,11 @@ export async function PATCH(req, { params }) {
     clean.env_vars = JSON.stringify(clean.env_vars);
   }
   if ("wine_binary" in clean && !String(clean.wine_binary).trim()) clean.wine_binary = "wine";
+
+  if ("admin_password" in clean && clean.admin_password == null) clean.admin_password = "";
+  if ("server_password" in clean && clean.server_password == null) clean.server_password = "";
+  if ("admin_password" in clean && typeof clean.admin_password === "string") clean.admin_password = clean.admin_password.replace(/^(["'])(.*)\1$/, "$2");
+  if ("server_password" in clean && typeof clean.server_password === "string") clean.server_password = clean.server_password.replace(/^(["'])(.*)\1$/, "$2");
 
   // Owner and default world name are saved directly as text fields
   if ("owner_id" in patch) clean.owner_id = patch.owner_id;
@@ -139,7 +144,6 @@ export async function PATCH(req, { params }) {
   if ("discord_relay_chat" in clean) clean.discord_relay_chat = clean.discord_relay_chat ? 1 : 0;
   if ("warn_enabled" in clean) clean.warn_enabled = clean.warn_enabled ? 1 : 0;
   if ("legacy_perf_flags" in clean) clean.legacy_perf_flags = clean.legacy_perf_flags ? 1 : 0;
-  if ("rcon_enabled" in clean) clean.rcon_enabled = clean.rcon_enabled ? 1 : 0;
   for (const k of ["warn_lead_minutes", "warn_interval_minutes"]) {
     if (k in clean) clean[k] = Math.max(0, parseInt(clean[k], 10) || 0);
   }
@@ -147,7 +151,7 @@ export async function PATCH(req, { params }) {
   // Port fields: validate range and reject collisions with another world's ports
   // before writing anything (previously these were accepted silently, so two worlds
   // could end up sharing a port with no warning).
-  const PORT_FIELDS = ["game_port", "query_port", "rest_api_port", "rcon_port"];
+  const PORT_FIELDS = ["game_port", "query_port", "rest_api_port"];
   if (PORT_FIELDS.some((k) => k in clean)) {
     for (const k of PORT_FIELDS) {
       if (k in clean) {
@@ -158,7 +162,7 @@ export async function PATCH(req, { params }) {
         clean[k] = n;
       }
     }
-    const check = { game_port: clean.game_port ?? w.game_port, query_port: clean.query_port ?? w.query_port, rest_api_port: clean.rest_api_port ?? w.rest_api_port, rcon_port: clean.rcon_port ?? w.rcon_port };
+    const check = { game_port: clean.game_port ?? w.game_port, query_port: clean.query_port ?? w.query_port, rest_api_port: clean.rest_api_port ?? w.rest_api_port };
     const seen = new Set();
     for (const [label, p] of Object.entries(check)) {
       if (seen.has(p)) return NextResponse.json({ ok: false, error: `Port ${p} is used by more than one field on this world — each port must be unique.` }, { status: 400 });
